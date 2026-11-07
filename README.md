@@ -28,6 +28,17 @@ php -S localhost:8000 -t public public/index.php
 - `storage/` debe ser escribible por PHP y nunca servirse públicamente.
 - Avisos en segundo plano: `NOTIFY_QUEUE=true` y cron `* * * * * php bin/notify.php`.
 
+### Importar la base en MySQL / MariaDB (phpMyAdmin)
+
+`database/metal_live.sql` trae la base completa (estructura y datos) lista para importar:
+
+```bash
+mysql -u usuario -p -e "CREATE DATABASE metal_live CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+mysql -u usuario -p metal_live < database/metal_live.sql
+```
+
+Para regenerarlo con los datos actuales: `php bin/export-sql.php` (`--structure-only` para exportar solo las tablas, `--output=archivo.sql` para otro destino). El archivo borra y vuelve a crear las tablas: importarlo sobre una base con datos los reemplaza.
+
 ## Estructura
 
 ```
@@ -40,7 +51,7 @@ app/Services/      SurgeryWorkflow (8 estadios), BoxService (cajas y stock), Con
                    Permissions, CustomFields, Audit, Notifications/ (motor de avisos)
 app/Views/         layouts, sitio, panel, correo
 database/schema.sql
-bin/               migrate.php, notify.php
+bin/               migrate.php, notify.php, export-sql.php
 ```
 
 ## Funcionalidad del panel

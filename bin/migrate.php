@@ -48,20 +48,9 @@ $tableExists = static fn (string $table): bool => $driver === 'sqlite'
     ? (bool) Database::value("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?", [$table])
     : (bool) Database::value('SELECT 1 FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ?', [$table]);
 
-$sql = file_get_contents(BASE_PATH . '/database/schema.sql');
-$sql = strtr($sql, $driver === 'mysql'
-    ? ['{{PK}}' => 'INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY', '{{ENGINE}}' => ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci']
-    : ['{{PK}}' => 'INTEGER PRIMARY KEY AUTOINCREMENT', '{{ENGINE}}' => '']);
-if ($driver === 'mysql') {
-    // En MySQL las FK deben tener el mismo tipo que la PK (INT UNSIGNED).
-    $sql = preg_replace('/^(\s+\w+_id|\s+(?:role|authorized|cx_confirmed|delivered|created|uploaded)_by|\s+attachment_id) INTEGER/m', '$1 INT UNSIGNED', $sql);
-    $sql = preg_replace('/^(\s+(?:current_surgery_id|user_id|entity_id)) INTEGER/m', '$1 INT UNSIGNED', $sql);
-}
-$sql = preg_replace('/^--.*$/m', '', $sql);
-
 // Crea solo las tablas que faltan: sirve para instalar desde cero y para sumar tablas nuevas sin perder datos.
 $created = [];
-foreach (array_filter(array_map('trim', explode(';', $sql))) as $statement) {
+foreach (App\Core\Schema::statements($driver) as $statement) {
     if (preg_match('/^CREATE TABLE (\w+)/i', $statement, $m)) {
         if ($tableExists($m[1])) {
             continue;

@@ -26,6 +26,12 @@ function base_path_url(): string
         $script = $_SERVER['SCRIPT_NAME'] ?? '';
         $dir = str_replace('\\', '/', dirname($script));
         $base = ($dir === '/' || $dir === '.') ? '' : rtrim($dir, '/');
+        // Con el .htaccess de la raíz, /admin se reescribe a /public/index.php sin que /public aparezca en la URL:
+        // en ese caso la base visible es la carpeta de arriba.
+        $uri = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+        if ($base !== '' && $uri !== $base && !str_starts_with($uri, $base . '/') && str_ends_with($base, '/public')) {
+            $base = substr($base, 0, -strlen('/public'));
+        }
     }
     return $base;
 }

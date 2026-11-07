@@ -1,0 +1,13 @@
+# Para hostings donde el proyecto completo queda dentro del document root (p. ej. public_html en Hostinger).
+# Todo se sirve desde public/: el código, la base, los logs y los documentos quedan inaccesibles.
+# Si podés apuntar el dominio directamente a public/, este archivo no hace falta.
+Options -Indexes -MultiViews
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(?!public/)(.*)$ public/$1 [L]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+    Require all denied
+</IfModule>
