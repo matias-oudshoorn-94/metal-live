@@ -21,7 +21,7 @@ body.site { background: #fff; font-size: 16px; }
 .nav-toggle { display: none; background: none; border: 0; color: #fff; padding: .5rem; cursor: pointer; }
 .nav-toggle .icon { width: 26px; height: 26px; }
 
-@media (max-width: 820px) {
+@media (max-width: 1020px) {
   .nav-toggle { display: block; }
   .site-nav {
     position: absolute; top: 76px; left: 0; right: 0; flex-direction: column; align-items: stretch; gap: 0;
@@ -164,6 +164,59 @@ body.site { background: #fff; font-size: 16px; }
 .tags { display: flex; flex-wrap: wrap; gap: .5rem; }
 .tag { padding: .3rem .75rem; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); font-size: .86rem; color: var(--ink-2); }
 @media (max-width: 600px) { .product-line { grid-template-columns: 1fr; gap: 1rem; } }
+
+/* Grilla de 3 columnas para áreas y valores */
+@media (min-width: 900px) { .cards-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* Líneas de producto */
+.product-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
+.product-chip {
+  display: flex; flex-direction: column; align-items: flex-start; gap: .9rem; padding: 1.4rem; border-radius: var(--radius-lg);
+  background: #fff; border: 1px solid var(--line); color: var(--ink); transition: transform .2s, box-shadow .2s, border-color .2s;
+}
+a.product-chip:hover { text-decoration: none; transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--brand-100); }
+.product-chip .feature-icon { margin: 0; }
+.product-chip strong { font-size: 1.05rem; }
+.product-grid-lg .product-chip { padding: 2rem 1.6rem; }
+.product-grid-lg .product-chip .feature-icon { width: 64px; height: 64px; border-radius: 18px; }
+.product-grid-lg .product-chip .feature-icon .icon { width: 32px; height: 32px; }
+.product-grid-lg .product-chip strong { font-size: 1.2rem; }
+
+.cta-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+
+/* Preguntas frecuentes */
+.faq { display: grid; gap: .85rem; }
+.faq details { border: 1px solid var(--line); border-radius: var(--radius-lg); background: #fff; transition: border-color .2s, box-shadow .2s; }
+.faq details[open] { border-color: var(--brand-100); box-shadow: var(--shadow-sm); }
+.faq summary {
+  display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.15rem 1.4rem;
+  font-weight: 700; font-size: 1.05rem; cursor: pointer; list-style: none;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--brand-50); color: var(--brand-600); font-size: 1.2rem; line-height: 1; }
+.faq details[open] summary::after { content: "−"; }
+.faq details > div { padding: 0 1.4rem 1.2rem; color: var(--ink-2); }
+.faq details > div p:last-child { margin-bottom: 0; }
+
+/* Redes sociales */
+.social-links { list-style: none; padding: 0; margin: 1rem 0 0; display: flex; flex-wrap: wrap; gap: .6rem; }
+.social-links a {
+  display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%;
+  background: rgb(255 255 255 / 8%); color: #fff; transition: background .2s;
+}
+.social-links a:hover { background: var(--brand); text-decoration: none; }
+.social-links .icon { width: 20px; height: 20px; }
+.footer-grid .social-links, .contact-card .social-links { display: flex; }
+.contact-card .social-links .icon { color: #fff; margin: 0; }
+.contact-card-sub { margin-top: 2rem; }
+
+/* Texto largo (Nosotros) */
+.values.values-stack { grid-template-columns: 1fr; }
+.prose p { color: var(--ink-2); }
+.prose blockquote {
+  margin: 2rem 0 0; padding: 1.25rem 1.5rem; border-left: 4px solid var(--brand); border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--brand-50); color: var(--navy); font-size: 1.15rem; font-weight: 700;
+}
 
 .values { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
 .value { padding: 1.5rem; border-left: 3px solid var(--brand); background: var(--bg); border-radius: 0 var(--radius) var(--radius) 0; }

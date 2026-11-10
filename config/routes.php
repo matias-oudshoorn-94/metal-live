@@ -26,6 +26,9 @@ return static function (Router $r): void {
     $r->get('/', [SiteController::class, 'home']);
     $r->get('/productos', [SiteController::class, 'products']);
     $r->get('/nosotros', [SiteController::class, 'about']);
+    $r->get('/preguntas-frecuentes', [SiteController::class, 'faq']);
+    $r->get('/sumate-al-equipo', [SiteController::class, 'careers']);
+    $r->post('/sumate-al-equipo', [SiteController::class, 'sendApplication']);
     $r->get('/contacto', [SiteController::class, 'contact']);
     $r->post('/contacto', [SiteController::class, 'sendContact']);
 

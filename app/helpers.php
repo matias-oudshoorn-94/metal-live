@@ -212,3 +212,88 @@ function long_date(?string $value = null, bool $withYear = true): string
     $out = $days[(int) date('w', $ts)] . ' ' . date('j', $ts) . ' de ' . $months[(int) date('n', $ts) - 1];
     return $withYear ? $out . ' de ' . date('Y', $ts) : $out;
 }
+
+// ---------------------------------------------------------------- Sitio institucional
+
+/** Datos de contacto del sitio. Se pueden cambiar desde .env (SITE_*). */
+function site_info(string $key): string
+{
+    $defaults = [
+        'phone' => ['SITE_PHONE', '+54 11 5264 2763'],
+        'urgent_phone' => ['SITE_URGENT_PHONE', '+54 11 4448 7396'],
+        'whatsapp' => ['SITE_WHATSAPP', '5491144487396'],
+        'whatsapp_label' => ['SITE_WHATSAPP_LABEL', '+54 11 4448 7396'],
+        'email' => ['SITE_EMAIL', 'info@metallive.com.ar'],
+        'address' => ['SITE_ADDRESS', 'Av. Amancio Alcorta 3711, CABA, Argentina'],
+    ];
+    [$env, $default] = $defaults[$key];
+    return (string) env($env, $default);
+}
+
+function tel_href(string $phone): string
+{
+    return '+' . ltrim(preg_replace('/\D/', '', $phone), '+');
+}
+
+function site_whatsapp_url(string $text = ''): string
+{
+    $number = preg_replace('/\D/', '', site_info('whatsapp'));
+    return 'https://wa.me/' . $number . ($text !== '' ? '?text=' . rawurlencode($text) : '');
+}
+
+function site_map_url(): string
+{
+    return 'https://www.google.com/maps/search/?api=1&query=' . rawurlencode(site_info('address'));
+}
+
+/** @return list<array{0:string,1:string,2:string}> ícono, nombre y enlace de cada red social */
+function site_social(): array
+{
+    return [
+        ['instagram', 'Instagram', 'https://www.instagram.com/metalliveok'],
+        ['youtube', 'YouTube', 'https://www.youtube.com/@metalliveok'],
+        ['facebook', 'Facebook', 'https://www.facebook.com/share/19f7Wb7BYK/'],
+        ['tiktok', 'TikTok', 'https://www.tiktok.com/@metalliveok'],
+    ];
+}
+
+/** Áreas clave del equipo (inicio). */
+function site_areas(): array
+{
+    return [
+        ['stethoscope', 'Medicina y Bioingeniería', 'Innovación constante para desarrollar productos que anticipen las demandas presentes y futuras de la traumatología.'],
+        ['award', 'Control de Calidad', 'Rigurosos protocolos que garantizan la máxima calidad y confiabilidad en cada producto.'],
+        ['truck', 'Logística Propia', 'Distribución eficiente en todo el territorio nacional, garantizando entregas oportunas y disponibilidad permanente.'],
+        ['users', 'Gestión Comercial Personalizada', 'Asesoramiento ágil y especializado, priorizando la satisfacción y fidelidad de nuestros clientes.'],
+        ['trend', 'Inteligencia de Mercado e Innovación', 'Investigamos continuamente las necesidades del sector para desarrollar soluciones vanguardistas y anticiparnos a las demandas futuras de la traumatología.'],
+        ['shield', 'Cumplimiento Normativo', 'Adhesión estricta a regulaciones nacionales e internacionales, asegurando los más altos estándares del sector.'],
+    ];
+}
+
+/** Somos Calidad, Confianza y Compromiso. */
+function site_values(): array
+{
+    return [
+        ['sparkle', 'Somos Calidad', 'Trabajamos con productos de alta calidad y tecnología avanzada.'],
+        ['heart', 'Somos Confianza', 'Fundada por expertos con más de 20 años de experiencia en el rubro de la traumatología.'],
+        ['check', 'Somos Compromiso', 'Excelencia en servicio y rapidez en la entrega de productos y servicios. Comprometidos con la satisfacción del cliente.'],
+    ];
+}
+
+/** Áreas del formulario "Sumate al equipo". */
+function site_job_areas(): array
+{
+    return ['administracion' => 'Administración', 'cirugia' => 'Sector cirugía', 'ventas' => 'Ventas', 'otro' => 'Otro'];
+}
+
+/** Líneas de producto. */
+function site_products(): array
+{
+    return [
+        ['spine', 'Columna y Cráneo'],
+        ['joint', 'Cadera y Rodilla'],
+        ['bone', 'Tobillo y pie'],
+        ['activity', 'Miembros Superiores'],
+        ['scope', 'Medicina Artroscópica'],
+    ];
+}

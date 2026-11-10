@@ -1,20 +1,28 @@
 <section class="page-hero">
   <div class="container">
     <p class="eyebrow">Contacto</p>
-    <h1>Hablemos de tu próxima cirugía</h1>
-    <p>Dejanos tus datos y la indicación médica, y un asesor comercial se comunicará con vos.</p>
+    <h1>¡Comunicate con nosotros!</h1>
+    <p>Dejanos tu consulta y te contactaremos cuanto antes.</p>
   </div>
 </section>
 
 <section class="section">
   <div class="container contact-grid">
     <aside class="contact-card">
-      <h2>Datos de contacto</h2>
-      <p>Atención comercial de lunes a viernes de 8 a 18 h. Urgencias quirúrgicas las 24 horas.</p>
+      <h2>Ubicación</h2>
+      <p><a href="<?= e(site_map_url()) ?>" target="_blank" rel="noopener"><?= e(site_info('address')) ?></a></p>
       <ul>
-        <li><?= icon('phone') ?><span><?= e(env('SITE_PHONE', '')) ?></span></li>
-        <li><?= icon('mail') ?><a href="mailto:<?= e(env('SITE_EMAIL', '')) ?>"><?= e(env('SITE_EMAIL', '')) ?></a></li>
-        <li><?= icon('pin') ?><span><?= e(env('SITE_ADDRESS', '')) ?></span></li>
+        <li><?= icon('phone') ?><span>Atención comercial<br><a href="tel:<?= e(tel_href(site_info('phone'))) ?>"><?= e(site_info('phone')) ?></a></span></li>
+        <li><?= icon('clock') ?><span>Urgencias<br><a href="tel:<?= e(tel_href(site_info('urgent_phone'))) ?>"><?= e(site_info('urgent_phone')) ?></a></span></li>
+        <li><?= icon('whatsapp') ?><span>WhatsApp<br><a href="<?= e(site_whatsapp_url('¡Hola! Buenos días. Tengo una consulta')) ?>" target="_blank" rel="noopener"><?= e(site_info('whatsapp_label')) ?></a></span></li>
+        <li><?= icon('mail') ?><span>Correo<br><a href="mailto:<?= e(site_info('email')) ?>"><?= e(site_info('email')) ?></a></span></li>
+      </ul>
+      <h2 class="contact-card-sub">Redes</h2>
+      <p>¡Sumate a nuestra comunidad y viví la evolución de la traumatología desde cerca!</p>
+      <ul class="social-links">
+        <?php foreach (site_social() as [$icon, $label, $href]): ?>
+          <li><a href="<?= e($href) ?>" target="_blank" rel="noopener" aria-label="<?= e($label) ?>" title="<?= e($label) ?>"><?= icon($icon) ?></a></li>
+        <?php endforeach; ?>
       </ul>
     </aside>
 
@@ -23,12 +31,12 @@
       <div class="hp" aria-hidden="true"><label>No completar <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
       <div class="form-grid">
         <div class="field">
-          <label for="c-name" class="req">Nombre y apellido</label>
+          <label for="c-name" class="req">Nombre</label>
           <input id="c-name" name="name" value="<?= e(old('name')) ?>" required maxlength="120" autocomplete="name"<?= invalid('name') ?>>
           <?= field_error('name') ?>
         </div>
         <div class="field">
-          <label for="c-email" class="req">Correo</label>
+          <label for="c-email" class="req">Correo electrónico</label>
           <input id="c-email" type="email" name="email" value="<?= e(old('email')) ?>" required maxlength="190" autocomplete="email"<?= invalid('email') ?>>
           <?= field_error('email') ?>
         </div>
@@ -45,10 +53,13 @@
           <textarea id="c-message" name="message" rows="6" required minlength="10" maxlength="3000"<?= invalid('message') ?>><?= e(old('message')) ?></textarea>
           <?= field_error('message') ?>
         </div>
+        <div class="field span-all">
+          <label class="check"><input type="checkbox" name="privacy" value="1" required<?= checked(old('privacy')) ?><?= invalid('privacy') ?>> Acepto que mis datos serán utilizados con el objetivo de brindarme servicios, productos y asistencia, conforme a la política de privacidad.</label>
+          <?= field_error('privacy') ?>
+        </div>
       </div>
       <div class="form-actions">
         <button class="btn btn-primary btn-lg" type="submit">Enviar consulta</button>
-        <small class="muted">Usamos tus datos solo para responder esta consulta.</small>
       </div>
     </form>
   </div>

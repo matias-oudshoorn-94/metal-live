@@ -1,6 +1,7 @@
 <?php
 $page ??= '';
-$links = ['productos' => 'Productos', 'nosotros' => 'Nosotros', 'contacto' => 'Contacto'];
+$links = ['productos' => 'Productos', 'nosotros' => 'Nosotros', 'preguntas-frecuentes' => 'Preguntas frecuentes', 'sumate-al-equipo' => 'Sumate al equipo', 'contacto' => 'Contacto'];
+$social = site_social();
 ?>
 <!doctype html>
 <html lang="es">
@@ -8,7 +9,7 @@ $links = ['productos' => 'Productos', 'nosotros' => 'Nosotros', 'contacto' => 'C
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?= e($title ?? 'Metal Live') ?> · Metal Live</title>
-  <meta name="description" content="Metal Live: distribución de implantes, prótesis e insumos para cirugía traumatológica, con logística quirúrgica, instrumentación y trazabilidad.">
+  <meta name="description" content="Metal Live ®, empresa argentina líder en la producción y distribución de implantes traumatológicos. Innovación en implantes, compromiso en salud.">
   <meta name="theme-color" content="#0b1b36">
   <link rel="icon" href="<?= asset('img/favicon.png') ?>">
   <link rel="stylesheet" href="<?= asset('css/base.css') ?>">
@@ -44,33 +45,37 @@ $links = ['productos' => 'Productos', 'nosotros' => 'Nosotros', 'contacto' => 'C
   <div class="container footer-grid">
     <div>
       <img src="<?= asset('img/logo.webp') ?>" alt="Metal Live" width="150" height="58" loading="lazy">
-      <p>Implantes, prótesis e insumos para traumatología y ortopedia. Logística quirúrgica con trazabilidad completa.</p>
+      <p>Innovación en Implantes, Compromiso en Salud.</p>
+      <p>Seguinos en nuestras redes para descubrir las últimas novedades en implantes traumatológicos.</p>
+      <ul class="social-links" aria-label="Redes sociales">
+        <?php foreach ($social as [$icon, $label, $href]): ?>
+          <li><a href="<?= e($href) ?>" target="_blank" rel="noopener" aria-label="<?= e($label) ?>" title="<?= e($label) ?>"><?= icon($icon) ?></a></li>
+        <?php endforeach; ?>
+      </ul>
     </div>
     <div>
       <h2>Navegación</h2>
       <ul>
-        <li><a href="<?= url('/productos') ?>">Productos</a></li>
-        <li><a href="<?= url('/nosotros') ?>">Nosotros</a></li>
-        <li><a href="<?= url('/contacto') ?>">Contacto</a></li>
+        <?php foreach ($links as $slug => $label): ?><li><a href="<?= url('/' . $slug) ?>"><?= e($label) ?></a></li><?php endforeach; ?>
         <li><a href="<?= url('/admin') ?>">Acceso al sistema</a></li>
       </ul>
     </div>
     <div>
       <h2>Contacto</h2>
       <ul class="contact-list">
-        <li><?= icon('phone') ?><?= e(env('SITE_PHONE', '')) ?></li>
-        <li><?= icon('mail') ?><a href="mailto:<?= e(env('SITE_EMAIL', '')) ?>"><?= e(env('SITE_EMAIL', '')) ?></a></li>
-        <li><?= icon('pin') ?><?= e(env('SITE_ADDRESS', '')) ?></li>
+        <li><?= icon('phone') ?><span>Atención comercial: <a href="tel:<?= e(tel_href(site_info('phone'))) ?>"><?= e(site_info('phone')) ?></a></span></li>
+        <li><?= icon('clock') ?><span>Urgencias: <a href="tel:<?= e(tel_href(site_info('urgent_phone'))) ?>"><?= e(site_info('urgent_phone')) ?></a></span></li>
+        <li><?= icon('mail') ?><a href="mailto:<?= e(site_info('email')) ?>"><?= e(site_info('email')) ?></a></li>
+        <li><?= icon('pin') ?><a href="<?= e(site_map_url()) ?>" target="_blank" rel="noopener"><?= e(site_info('address')) ?></a></li>
       </ul>
     </div>
   </div>
   <div class="container footer-bottom">
-    <span>© <?= date('Y') ?> Metal Live. Todos los derechos reservados.</span>
-    <span>Productos médicos con registro ANMAT.</span>
+    <span>© Powered by Metal Live® SRL <?= date('Y') ?></span>
   </div>
 </footer>
-<?php if (env('SITE_WHATSAPP')): ?>
-  <a class="wa-float" href="https://wa.me/<?= e(preg_replace('/\D/', '', (string) env('SITE_WHATSAPP'))) ?>" target="_blank" rel="noopener" aria-label="Escribinos por WhatsApp"><?= icon('whatsapp') ?></a>
+<?php if (site_info('whatsapp')): ?>
+  <a class="wa-float" href="<?= e(site_whatsapp_url('¡Hola! Buenos días. Tengo una consulta')) ?>" target="_blank" rel="noopener" aria-label="Escribinos por WhatsApp"><?= icon('whatsapp') ?></a>
 <?php endif; ?>
 </body>
 </html>
