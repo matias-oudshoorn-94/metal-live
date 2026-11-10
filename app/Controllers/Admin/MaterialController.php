@@ -7,6 +7,7 @@ namespace App\Controllers\Admin;
 use App\Core\Controller;
 use App\Core\Database;
 use App\Core\HttpException;
+use App\Models\Catalog;
 use App\Services\Audit;
 use App\Services\BoxService;
 
@@ -15,39 +16,40 @@ final class MaterialController extends Controller
     private const RULES = [
         'code' => 'required|max:60',
         'name' => 'required|max:190',
-        'category' => 'max:80',
+        'category_id' => 'exists:material_categories',
         'unit' => 'required|max:20',
         'price' => 'numeric|min_value:0',
         'min_stock' => 'int|min_value:0',
         'active' => 'bool',
         'notes' => 'max:2000',
     ];
-    private const LABELS = ['code' => 'Código', 'name' => 'Nombre', 'category' => 'Categoría', 'unit' => 'Unidad', 'price' => 'Precio', 'min_stock' => 'Stock mínimo'];
+    private const LABELS = ['code' => 'Código', 'name' => 'Nombre', 'category_id' => 'Categoría', 'unit' => 'Unidad', 'price' => 'Precio', 'min_stock' => 'Stock mínimo'];
 
     public function index(): void
     {
         $q = (string) $this->request->query('q', '');
-        $category = (string) $this->request->query('category', '');
+        $category = (int) $this->request->query('category', 0);
         $conds = ['1 = 1'];
         $params = [];
         if ($q !== '') {
-            $conds[] = '(code LIKE ? OR name LIKE ?)';
+            $conds[] = '(m.code LIKE ? OR m.name LIKE ?)';
             array_push($params, "%{$q}%", "%{$q}%");
         }
-        if ($category !== '') {
-            $conds[] = 'category = ?';
+        if ($category > 0) {
+            $conds[] = 'm.category_id = ?';
             $params[] = $category;
         }
         if ($this->request->query('bajo') === '1') {
-            $conds[] = 'stock_qty <= min_stock AND min_stock > 0';
+            $conds[] = 'm.stock_qty <= m.min_stock AND m.min_stock > 0';
         }
         $rows = Database::fetchAll(
-            'SELECT m.*, (SELECT COALESCE(SUM(current_qty), 0) FROM box_items bi WHERE bi.material_id = m.id) AS in_boxes,
+            'SELECT m.*, mc.name AS category_name, (SELECT COALESCE(SUM(current_qty), 0) FROM box_items bi WHERE bi.material_id = m.id) AS in_boxes,
                     (SELECT COALESCE(SUM(quantity), 0) FROM consignment_stock cs WHERE cs.material_id = m.id) AS in_consignment
-               FROM materials m WHERE ' . implode(' AND ', $conds) . ' ORDER BY active DESC, name LIMIT 500',
+               FROM materials m LEFT JOIN material_categories mc ON mc.id = m.category_id
+              WHERE ' . implode(' AND ', $conds) . ' ORDER BY m.active DESC, m.name LIMIT 500',
             $params
         );
-        $categories = array_column(Database::fetchAll("SELECT DISTINCT category FROM materials WHERE category IS NOT NULL AND category <> '' ORDER BY category"), 'category');
+        $categories = Catalog::materialCategories();
         $this->render('admin/materials/index', ['title' => 'Materiales y stock', 'rows' => $rows, 'q' => $q, 'category' => $category, 'categories' => $categories]);
     }
 
@@ -73,7 +75,7 @@ final class MaterialController extends Controller
 
     public function create(): void
     {
-        $this->render('admin/materials/form', ['title' => 'Nuevo material', 'm' => null]);
+        $this->render('admin/materials/form', ['title' => 'Nuevo material', 'm' => null, 'categories' => Catalog::materialCategories()]);
     }
 
     public function store(): void
@@ -96,7 +98,7 @@ final class MaterialController extends Controller
     public function edit(string $id): void
     {
         $m = $this->find($id);
-        $this->render('admin/materials/form', ['title' => 'Editar material', 'm' => $m]);
+        $this->render('admin/materials/form', ['title' => 'Editar material', 'm' => $m, 'categories' => Catalog::materialCategories()]);
     }
 
     public function update(string $id): void
@@ -145,7 +147,10 @@ final class MaterialController extends Controller
 
     private function find(string $id): array
     {
-        return Database::fetch('SELECT * FROM materials WHERE id = ?', [(int) $id]) ?? throw new HttpException(404);
+        return Database::fetch(
+            'SELECT m.*, mc.name AS category_name FROM materials m LEFT JOIN material_categories mc ON mc.id = m.category_id WHERE m.id = ?',
+            [(int) $id]
+        ) ?? throw new HttpException(404);
     }
 
     private function normalize(array $data): array

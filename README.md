@@ -21,6 +21,7 @@ php -S localhost:8000 -t public public/index.php
 
 ## Producción
 
+- Si el hosting no deja cambiar el document root (p. ej. Hostinger con `public_html`), subir el proyecto completo dentro de `public_html`: el `.htaccess` de la raíz manda todo a `public/` y deja inaccesible el resto.
 - Apuntar el document root del servidor a `public/` (incluye `.htaccess` para Apache; en Nginx usar `try_files $uri /index.php?$query_string`).
 - `APP_DEBUG=false`, `APP_KEY` aleatoria, HTTPS (las cookies pasan a `Secure` automáticamente).
 - MySQL/MariaDB: `DB_CONNECTION=mysql` y credenciales; luego `php bin/migrate.php`.
@@ -63,7 +64,8 @@ bin/               migrate.php, notify.php, export-sql.php
 - **Roles y accesos editables**: matriz de permisos por rol (`/admin/roles`). Los roles iniciales siguen la tabla de accesos del documento.
 - **Campos de cotización configurables** (`/admin/campos`).
 - **Motor único de avisos**: canales intercambiables (correo SMTP y WhatsApp Cloud API), cola con reintentos y registro en `/admin/avisos`.
-- ABM de pacientes, médicos, instituciones, clientes, instrumentadoras, proveedores, materiales, cajas y usuarios. Auditoría y mensajes del formulario de contacto.
+- ABM de pacientes, médicos, instituciones, clientes, obras sociales, instrumentadoras, proveedores, materiales, categorías de materiales, cajas y usuarios.
+- **Agenda** (`/admin/agenda`): listado de los próximos 30 días y, debajo, calendario mensual con todas las cirugías (navegable por mes; en el celular se ve como lista de días). Auditoría y mensajes del formulario de contacto.
 
 ## Seguridad
 

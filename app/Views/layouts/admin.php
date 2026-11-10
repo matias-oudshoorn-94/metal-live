@@ -16,6 +16,7 @@ $nav = [
     'Stock' => [
         ['Cajas', '/admin/cajas', 'box', ['boxes.states.view', 'stock.view', 'stock.manage']],
         ['Materiales', '/admin/materiales', 'layers', ['stock.view', 'stock.manage']],
+        ['Categorías', '/admin/maestros/categorias-materiales', 'list', ['stock.manage']],
         ['Consignaciones', '/admin/consignaciones', 'briefcase', ['consignment.view', 'consignment.manage']],
     ],
     'Maestros' => [
@@ -23,6 +24,7 @@ $nav = [
         ['Médicos', '/admin/maestros/medicos', 'stethoscope', ['catalogs.manage']],
         ['Instituciones', '/admin/maestros/instituciones', 'building', ['catalogs.manage']],
         ['Clientes', '/admin/maestros/clientes', 'briefcase', ['catalogs.manage']],
+        ['Obras sociales', '/admin/maestros/obras-sociales', 'shield', ['catalogs.manage']],
         ['Instrumentadoras', '/admin/maestros/instrumentadoras', 'scissors', ['catalogs.manage']],
         ['Proveedores', '/admin/maestros/proveedores', 'truck', ['catalogs.manage']],
     ],

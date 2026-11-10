@@ -22,8 +22,11 @@ $return = (string) ($_GET['return'] ?? old('return', ''));
           <?php if ($type === 'select'): ?>
             <select id="f-<?= e($name) ?>" name="<?= e($name) ?>"<?= $req ? ' required' : '' ?><?= invalid($name) ?>>
               <option value="">Seleccionar…</option>
-              <?php foreach (Catalog::sourceOptions($f) as $k => $label): ?><option value="<?= e($k) ?>"<?= selected($value, $k) ?>><?= e($label) ?></option><?php endforeach; ?>
+              <?php foreach (Catalog::sourceOptions($f, $value) as $k => $label): ?><option value="<?= e($k) ?>"<?= selected($value, $k) ?>><?= e($label) ?></option><?php endforeach; ?>
             </select>
+            <?php if (isset($f['manage']) && can(Catalog::permission(Catalog::get($f['manage'])))): ?>
+              <a class="hint" href="<?= url('/admin/maestros/' . $f['manage']) ?>" target="_blank" rel="noopener">Administrar <?= e(mb_strtolower(Catalog::get($f['manage'])['title'])) ?> ↗</a>
+            <?php endif; ?>
           <?php elseif ($type === 'textarea'): ?>
             <textarea id="f-<?= e($name) ?>" name="<?= e($name) ?>" rows="3"<?= invalid($name) ?>><?= e($value) ?></textarea>
           <?php else: ?>

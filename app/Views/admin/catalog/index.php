@@ -1,6 +1,6 @@
 <div class="page-head">
   <h2><?= e($def['title']) ?></h2>
-  <div class="actions"><a class="btn btn-primary" href="<?= url('/admin/maestros/' . $def['slug'] . '/nuevo') ?>"><?= icon('plus') ?> Nuevo <?= e($def['singular']) ?></a></div>
+  <div class="actions"><a class="btn btn-primary" href="<?= url('/admin/maestros/' . $def['slug'] . '/nuevo') ?>"><?= icon('plus') ?> <?= ($def['gender'] ?? 'm') === 'f' ? 'Nueva' : 'Nuevo' ?> <?= e($def['singular']) ?></a></div>
 </div>
 
 <section class="card">
@@ -20,7 +20,7 @@
           <?php $first = true; foreach ($def['list'] as $col => $_):
               $field = $def['fields'][$col] ?? [];
               $v = $row[$col] ?? null;
-              if (isset($lookups[$col])) { $v = $lookups[$col][$v] ?? null; }
+              if (isset($lookups[$col])) { $v = $v === null ? null : ($lookups[$col][$v] ?? null); }
               if (($field['type'] ?? '') === 'checkbox') { echo '<td>' . yes_no($v) . '</td>'; continue; } ?>
             <td><?php if ($first): ?><a class="row-link" href="<?= url('/admin/maestros/' . $def['slug'] . '/' . $row['id'] . '/editar') ?>"><?= e($v ?? '—') ?></a><?php else: ?><?= e($v ?? '—') ?><?php endif; ?></td>
           <?php $first = false; endforeach; ?>

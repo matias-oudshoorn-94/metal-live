@@ -1,7 +1,7 @@
 <div class="page-head">
   <h2>Materiales y stock</h2>
   <div class="actions">
-    <?php if (can('stock.manage')): ?><a class="btn btn-primary" href="<?= url('/admin/materiales/nuevo') ?>"><?= icon('plus') ?> Nuevo material</a><?php endif; ?>
+    <?php if (can('stock.manage')): ?><a class="btn" href="<?= url('/admin/maestros/categorias-materiales') ?>"><?= icon('list') ?> Categorías</a><a class="btn btn-primary" href="<?= url('/admin/materiales/nuevo') ?>"><?= icon('plus') ?> Nuevo material</a><?php endif; ?>
   </div>
   <p class="subtitle">Stock suelto (en depósito), unidades dentro de las cajas y en consignación en clientes.</p>
 </div>
@@ -13,7 +13,7 @@
       <label for="cat">Categoría</label>
       <select id="cat" name="category">
         <option value="">Todas</option>
-        <?php foreach ($categories as $c): ?><option<?= selected($category, $c) ?>><?= e($c) ?></option><?php endforeach; ?>
+        <?php foreach ($categories as $id => $name): ?><option value="<?= (int) $id ?>"<?= selected($category, $id) ?>><?= e($name) ?></option><?php endforeach; ?>
       </select>
     </div>
     <label class="check"><input type="checkbox" name="bajo" value="1"<?= checked(($_GET['bajo'] ?? '') === '1') ?>> Solo stock bajo</label>
@@ -30,7 +30,7 @@
         <tr>
           <td class="mono"><?= e($m['code']) ?></td>
           <td><a class="row-link" href="<?= url('/admin/materiales/' . $m['id']) ?>"><?= e($m['name']) ?></a></td>
-          <td><?= e($m['category'] ?: '—') ?></td>
+          <td><?= e($m['category_name'] ?: '—') ?></td>
           <td class="text-right nowrap"><?= money($m['price']) ?></td>
           <td class="text-right"><strong><?= (int) $m['stock_qty'] ?></strong> <?= $low ? '<span class="badge badge-danger">Bajo</span>' : '' ?><span class="cell-sub">mín. <?= (int) $m['min_stock'] ?></span></td>
           <td class="text-right"><?= (int) $m['in_boxes'] ?></td>

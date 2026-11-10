@@ -4,7 +4,7 @@ $types = ['ingreso' => 'Ingreso', 'egreso' => 'Egreso', 'ajuste' => 'Ajuste', 'c
 <div class="page-head">
   <div>
     <h2><?= e($m['name']) ?></h2>
-    <p class="subtitle mono"><?= e($m['code']) ?> · <?= e($m['category'] ?: 'Sin categoría') ?></p>
+    <p class="subtitle mono"><?= e($m['code']) ?> · <?= e($m['category_name'] ?: 'Sin categoría') ?></p>
   </div>
   <div class="actions">
     <?php if (can('stock.manage')): ?>

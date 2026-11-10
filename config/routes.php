@@ -100,13 +100,13 @@ return static function (Router $r): void {
         $r->post('/cajas/{id}/disponible', [BoxController::class, 'markAvailable'], 'can:stock.manage');
         $r->post('/cajas/{id}/eliminar', [BoxController::class, 'destroy'], 'can:stock.manage');
 
-        // Maestros (ABM genérico)
-        $r->get('/maestros/{catalog}', [CatalogController::class, 'index'], 'can:catalogs.manage');
-        $r->get('/maestros/{catalog}/nuevo', [CatalogController::class, 'create'], 'can:catalogs.manage');
-        $r->post('/maestros/{catalog}', [CatalogController::class, 'store'], 'can:catalogs.manage');
-        $r->get('/maestros/{catalog}/{id}/editar', [CatalogController::class, 'edit'], 'can:catalogs.manage');
-        $r->post('/maestros/{catalog}/{id}', [CatalogController::class, 'update'], 'can:catalogs.manage');
-        $r->post('/maestros/{catalog}/{id}/eliminar', [CatalogController::class, 'destroy'], 'can:catalogs.manage');
+        // Maestros (ABM genérico). Cada maestro controla su propio permiso en CatalogController.
+        $r->get('/maestros/{catalog}', [CatalogController::class, 'index'], 'can:catalogs.manage|stock.manage');
+        $r->get('/maestros/{catalog}/nuevo', [CatalogController::class, 'create'], 'can:catalogs.manage|stock.manage');
+        $r->post('/maestros/{catalog}', [CatalogController::class, 'store'], 'can:catalogs.manage|stock.manage');
+        $r->get('/maestros/{catalog}/{id}/editar', [CatalogController::class, 'edit'], 'can:catalogs.manage|stock.manage');
+        $r->post('/maestros/{catalog}/{id}', [CatalogController::class, 'update'], 'can:catalogs.manage|stock.manage');
+        $r->post('/maestros/{catalog}/{id}/eliminar', [CatalogController::class, 'destroy'], 'can:catalogs.manage|stock.manage');
 
         // Configuración
         $r->get('/campos', [CustomFieldController::class, 'index'], 'can:custom_fields.manage');

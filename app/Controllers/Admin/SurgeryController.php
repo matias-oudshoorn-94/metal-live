@@ -97,7 +97,40 @@ final class SurgeryController extends Controller
         foreach ($rows as $row) {
             $days[substr($row['scheduled_at'], 0, 10)][] = $row;
         }
-        $this->render('admin/surgeries/agenda', ['title' => 'Agenda de cirugías', 'days' => $days]);
+        $this->render('admin/surgeries/agenda', ['title' => 'Agenda de cirugías', 'days' => $days, 'calendar' => $this->calendar()]);
+    }
+
+    /** Mes completo para el calendario de la agenda (?mes=AAAA-MM), en semanas de lunes a domingo. */
+    private function calendar(): array
+    {
+        $month = (string) $this->request->query('mes', '');
+        $first = preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $month) ? strtotime($month . '-01') : strtotime(date('Y-m-01'));
+        $start = strtotime('-' . ((int) date('N', $first) - 1) . ' days', $first);
+        $last = strtotime(date('Y-m-t', $first));
+        $end = strtotime('+' . (7 - (int) date('N', $last)) . ' days', $last);
+
+        $rows = Database::fetchAll(
+            Surgery::select() . ' WHERE s.scheduled_at >= ? AND s.scheduled_at < ? ORDER BY s.scheduled_at',
+            [date('Y-m-d 00:00:00', $start), date('Y-m-d 00:00:00', strtotime('+1 day', $end))]
+        );
+        $events = [];
+        foreach ($rows as $row) {
+            $events[substr($row['scheduled_at'], 0, 10)][] = $row;
+        }
+
+        $days = [];
+        for ($day = $start; $day <= $end; $day = strtotime('+1 day', $day)) {
+            $date = date('Y-m-d', $day);
+            $days[] = ['date' => $date, 'in_month' => date('m', $day) === date('m', $first), 'events' => $events[$date] ?? []];
+        }
+
+        return [
+            'month' => date('Y-m', $first),
+            'prev' => date('Y-m', strtotime('-1 month', $first)),
+            'next' => date('Y-m', strtotime('+1 month', $first)),
+            'weeks' => array_chunk($days, 7),
+            'total' => count($rows),
+        ];
     }
 
     // ------------------------------------------------------------------ Cotización

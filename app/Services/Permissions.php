@@ -52,12 +52,12 @@ final class Permissions
         ],
         'Stock' => [
             'stock.view' => 'Ver stock de materiales y cajas',
-            'stock.manage' => 'Administrar materiales, cajas e ingresos de stock',
+            'stock.manage' => 'Administrar materiales, categorías, cajas e ingresos de stock',
             'consignment.view' => 'Ver stock en consignación en clientes',
             'consignment.manage' => 'Enviar, devolver y registrar consumos de material en consignación',
         ],
         'Administración' => [
-            'catalogs.manage' => 'ABM de pacientes, instituciones, médicos, clientes, instrumentadoras y proveedores',
+            'catalogs.manage' => 'ABM de pacientes, instituciones, médicos, clientes, obras sociales, instrumentadoras y proveedores',
             'custom_fields.manage' => 'Configurar campos de la cotización',
             'users.manage' => 'Administrar usuarios',
             'roles.manage' => 'Administrar roles y permisos',

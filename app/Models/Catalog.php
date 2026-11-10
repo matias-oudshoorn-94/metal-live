@@ -92,10 +92,11 @@ final class Catalog
                 'icon' => 'briefcase',
                 'order' => 'name',
                 'search' => ['name', 'cuit'],
-                'list' => ['name' => 'Nombre', 'type' => 'Tipo', 'cuit' => 'CUIT', 'contact' => 'Contacto', 'payment_terms' => 'Condición de pago'],
+                'list' => ['name' => 'Nombre', 'type' => 'Tipo', 'health_insurance_id' => 'Obra social', 'cuit' => 'CUIT', 'contact' => 'Contacto', 'payment_terms' => 'Condición de pago'],
                 'fields' => [
                     'name' => ['label' => 'Nombre / razón social', 'rules' => 'required|max:160'],
                     'type' => ['label' => 'Tipo', 'type' => 'select', 'options' => self::CLIENT_TYPES, 'rules' => 'required|in:' . implode(',', array_keys(self::CLIENT_TYPES))],
+                    'health_insurance_id' => ['label' => 'Obra social', 'type' => 'select', 'source' => ['health_insurances', 'name'], 'rules' => 'exists:health_insurances', 'manage' => 'obras-sociales'],
                     'cuit' => ['label' => 'CUIT', 'rules' => 'max:20'],
                     'address' => ['label' => 'Dirección', 'rules' => 'max:255'],
                     'phone' => ['label' => 'Teléfono', 'type' => 'tel', 'rules' => 'max:40'],
@@ -105,6 +106,42 @@ final class Catalog
                     'notes' => ['label' => 'Observaciones', 'type' => 'textarea', 'rules' => 'max:2000', 'wide' => true],
                 ],
                 'in_use' => [['surgeries', 'client_id'], ['patients', 'client_id'], ['consignment_movements', 'client_id']],
+            ],
+            'obras-sociales' => [
+                'table' => 'health_insurances',
+                'title' => 'Obras sociales',
+                'singular' => 'obra social',
+                'gender' => 'f',
+                'icon' => 'shield',
+                'order' => 'name',
+                'search' => ['name', 'code', 'cuit'],
+                'list' => ['name' => 'Nombre', 'code' => 'Sigla / código', 'cuit' => 'CUIT', 'phone' => 'Teléfono', 'active' => 'Activa'],
+                'fields' => [
+                    'name' => ['label' => 'Nombre', 'rules' => 'required|max:160'],
+                    'code' => ['label' => 'Sigla / código', 'rules' => 'max:40'],
+                    'cuit' => ['label' => 'CUIT', 'rules' => 'max:20'],
+                    'phone' => ['label' => 'Teléfono', 'type' => 'tel', 'rules' => 'max:40'],
+                    'email' => ['label' => 'Correo', 'type' => 'email', 'rules' => 'email|max:190'],
+                    'active' => ['label' => 'Activa', 'type' => 'checkbox', 'rules' => 'bool', 'default' => 1],
+                    'notes' => ['label' => 'Observaciones', 'type' => 'textarea', 'rules' => 'max:2000', 'wide' => true],
+                ],
+                'in_use' => [['clients', 'health_insurance_id']],
+            ],
+            'categorias-materiales' => [
+                'table' => 'material_categories',
+                'title' => 'Categorías de materiales',
+                'singular' => 'categoría',
+                'gender' => 'f',
+                'icon' => 'layers',
+                'permission' => 'stock.manage',
+                'order' => 'name',
+                'search' => ['name'],
+                'list' => ['name' => 'Nombre', 'notes' => 'Descripción'],
+                'fields' => [
+                    'name' => ['label' => 'Nombre', 'rules' => 'required|max:80', 'unique' => true],
+                    'notes' => ['label' => 'Descripción', 'type' => 'textarea', 'rules' => 'max:2000', 'wide' => true],
+                ],
+                'in_use' => [['materials', 'category_id']],
             ],
             'instrumentadoras' => [
                 'table' => 'instrumentists',
@@ -151,16 +188,47 @@ final class Catalog
         return [...$def, 'slug' => $slug];
     }
 
-    /** Opciones para selects que dependen de otra tabla. */
-    public static function sourceOptions(array $field): array
+    /** Permiso necesario para administrar el maestro. */
+    public static function permission(array $def): string
+    {
+        return $def['permission'] ?? 'catalogs.manage';
+    }
+
+    /**
+     * Opciones para selects que dependen de otra tabla. Con $current (formularios) se ocultan
+     * los registros inactivos, salvo el que ya está elegido.
+     */
+    public static function sourceOptions(array $field, mixed $current = null): array
     {
         if (isset($field['options'])) {
             return $field['options'];
         }
         [$table, $label] = $field['source'];
         Database::assertIdentifier($table, $label);
-        $rows = Database::fetchAll("SELECT id, {$label} AS label FROM {$table} ORDER BY {$label}");
+        $where = '';
+        $params = [];
+        if (func_num_args() > 1 && self::hasActiveFlag($table)) {
+            $where = 'WHERE active = 1 OR id = ?';
+            $params[] = (int) $current;
+        }
+        $rows = Database::fetchAll("SELECT id, {$label} AS label FROM {$table} {$where} ORDER BY {$label}", $params);
         return array_column($rows, 'label', 'id');
+    }
+
+    private static function hasActiveFlag(string $table): bool
+    {
+        foreach (self::definitions() as $def) {
+            if ($def['table'] === $table) {
+                return isset($def['fields']['active']);
+            }
+        }
+        return false;
+    }
+
+    /** Categorías de materiales para selects y filtros (id => nombre). */
+    public static function materialCategories(): array
+    {
+        return array_column(self::named('material_categories'), 'name', 'id');
     }
 
     /** Listas para los selects de la cotización. */

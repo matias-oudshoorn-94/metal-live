@@ -63,6 +63,38 @@ foreach (App\Core\Schema::statements($driver) as $statement) {
 }
 echo $created ? 'Tablas creadas (' . $driver . '): ' . implode(', ', array_keys($created)) . ".\n" : "La base ya estaba al día.\n";
 
+// ---------------- Columnas nuevas en tablas existentes
+$columnExists = static fn (string $table, string $column): bool => $driver === 'sqlite'
+    ? (bool) Database::value("SELECT 1 FROM pragma_table_info('{$table}') WHERE name = ?", [$column])
+    : (bool) Database::value('SELECT 1 FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = ? AND column_name = ?', [$table, $column]);
+$addForeignColumn = static function (string $table, string $column, string $references) use ($driver, $pdo, $columnExists): bool {
+    if ($columnExists($table, $column)) {
+        return false;
+    }
+    $pdo->exec($driver === 'sqlite'
+        ? "ALTER TABLE {$table} ADD COLUMN {$column} INTEGER NULL REFERENCES {$references}(id) ON DELETE SET NULL"
+        : "ALTER TABLE {$table} ADD COLUMN {$column} INT UNSIGNED NULL, ADD FOREIGN KEY ({$column}) REFERENCES {$references}(id) ON DELETE SET NULL");
+    echo "Columna agregada: {$table}.{$column}.\n";
+    return true;
+};
+
+$addForeignColumn('clients', 'health_insurance_id', 'health_insurances');
+
+// Categorías de materiales: pasan de texto libre a la tabla material_categories.
+$addForeignColumn('materials', 'category_id', 'material_categories');
+if ($columnExists('materials', 'category')) {
+    Database::transaction(static function (): void {
+        $names = Database::fetchAll("SELECT DISTINCT TRIM(category) AS name FROM materials WHERE category IS NOT NULL AND TRIM(category) <> ''");
+        foreach (array_column($names, 'name') as $name) {
+            $id = Database::value('SELECT id FROM material_categories WHERE name = ?', [$name])
+                ?: Database::insert('material_categories', ['name' => $name, 'created_at' => now(), 'updated_at' => now()]);
+            Database::query('UPDATE materials SET category_id = ? WHERE TRIM(category) = ? AND category_id IS NULL', [$id, $name]);
+        }
+    });
+    $pdo->exec('ALTER TABLE materials DROP COLUMN category');
+    echo "Categorías de materiales migradas a material_categories.\n";
+}
+
 // ---------------- Roles y permisos
 $roleIds = [];
 foreach (Permissions::defaultRoles() as $slug => $role) {
@@ -125,10 +157,16 @@ foreach ($users as [$role, $name, $email, $commission]) {
 
 $ins = fn (string $table, array $rows) => array_map(fn ($r) => Database::insert($table, [...$r, 'created_at' => now(), 'updated_at' => now()]), $rows);
 
+$insurances = $ins('health_insurances', [
+    ['name' => 'OSDE', 'code' => 'OSDE', 'cuit' => '30-54674271-6'],
+    ['name' => 'PAMI', 'code' => 'INSSJP'],
+    ['name' => 'Swiss Medical', 'code' => 'SMG'],
+    ['name' => 'IOMA', 'code' => 'IOMA'],
+]);
 $clients = $ins('clients', [
-    ['name' => 'OSDE', 'type' => 'prepaga', 'cuit' => '30-54674271-6', 'payment_terms' => '60 días', 'contact' => 'Auditoría médica'],
-    ['name' => 'PAMI', 'type' => 'obra_social', 'payment_terms' => '90 días'],
-    ['name' => 'Swiss Medical', 'type' => 'prepaga', 'payment_terms' => '45 días'],
+    ['name' => 'OSDE', 'type' => 'prepaga', 'health_insurance_id' => $insurances[0], 'cuit' => '30-54674271-6', 'payment_terms' => '60 días', 'contact' => 'Auditoría médica'],
+    ['name' => 'PAMI', 'type' => 'obra_social', 'health_insurance_id' => $insurances[1], 'payment_terms' => '90 días'],
+    ['name' => 'Swiss Medical', 'type' => 'prepaga', 'health_insurance_id' => $insurances[2], 'payment_terms' => '45 días'],
     ['name' => 'Galeno ART', 'type' => 'art', 'payment_terms' => '30 días'],
     ['name' => 'Particular', 'type' => 'particular', 'payment_terms' => 'Contado'],
 ]);
@@ -172,10 +210,14 @@ $materials = [
     ['TOR-PED-55', 'Tornillo pedicular 5.5 mm', 'Columna', 165000, 40, 16],
     ['BAR-TIT-55', 'Barra de titanio 5.5 mm', 'Columna', 120000, 10, 4],
 ];
+$categoryIds = [];
+foreach (array_unique(array_column($materials, 2)) as $cat) {
+    $categoryIds[$cat] = Database::insert('material_categories', ['name' => $cat, 'created_at' => now(), 'updated_at' => now()]);
+}
 $mid = [];
 foreach ($materials as [$code, $name, $cat, $price, $stock, $min]) {
     $mid[$code] = Database::insert('materials', [
-        'code' => $code, 'name' => $name, 'category' => $cat, 'price' => $price, 'stock_qty' => $stock,
+        'code' => $code, 'name' => $name, 'category_id' => $categoryIds[$cat], 'price' => $price, 'stock_qty' => $stock,
         'min_stock' => $min, 'unit' => 'u', 'created_at' => now(), 'updated_at' => now(),
     ]);
 }

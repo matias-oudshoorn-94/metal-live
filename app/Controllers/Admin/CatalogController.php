@@ -7,6 +7,7 @@ namespace App\Controllers\Admin;
 use App\Core\Controller;
 use App\Core\Database;
 use App\Core\HttpException;
+use App\Core\Session;
 use App\Models\Catalog;
 use App\Services\Audit;
 
@@ -17,7 +18,7 @@ final class CatalogController extends Controller
 
     public function index(string $catalog): void
     {
-        $def = Catalog::get($catalog);
+        $def = $this->definition($catalog);
         $q = (string) $this->request->query('q', '');
         $where = '1 = 1';
         $params = [];
@@ -51,36 +52,36 @@ final class CatalogController extends Controller
 
     public function create(string $catalog): void
     {
-        $def = Catalog::get($catalog);
-        $this->render('admin/catalog/form', ['title' => 'Nuevo ' . $def['singular'], 'def' => $def, 'row' => null]);
+        $def = $this->definition($catalog);
+        $this->render('admin/catalog/form', ['title' => $this->word($def, 'Nuevo', 'Nueva') . ' ' . $def['singular'], 'def' => $def, 'row' => null]);
     }
 
     public function store(string $catalog): void
     {
-        $def = Catalog::get($catalog);
+        $def = $this->definition($catalog);
         $data = $this->input($def);
         $id = Database::insert($def['table'], [...$data, 'created_at' => now(), 'updated_at' => now()]);
         Audit::log('create', $def['table'], $id);
         $back = (string) $this->request->input('return', '');
         // Permite volver a la cotización tras crear un maestro "al vuelo".
         if (str_starts_with($back, '/admin/cirugias')) {
-            $this->redirect($back, ucfirst($def['singular']) . ' creado.');
+            $this->redirect($back, $this->created($def));
         }
-        $this->redirect('/admin/maestros/' . $def['slug'], ucfirst($def['singular']) . ' creado.');
+        $this->redirect('/admin/maestros/' . $def['slug'], $this->created($def));
     }
 
     public function edit(string $catalog, string $id): void
     {
-        $def = Catalog::get($catalog);
+        $def = $this->definition($catalog);
         $row = $this->find($def, $id);
         $this->render('admin/catalog/form', ['title' => 'Editar ' . $def['singular'], 'def' => $def, 'row' => $row]);
     }
 
     public function update(string $catalog, string $id): void
     {
-        $def = Catalog::get($catalog);
+        $def = $this->definition($catalog);
         $row = $this->find($def, $id);
-        $data = $this->input($def);
+        $data = $this->input($def, (int) $row['id']);
         Database::update($def['table'], [...$data, 'updated_at' => now()], (int) $row['id']);
         Audit::log('update', $def['table'], (int) $row['id']);
         $this->redirect('/admin/maestros/' . $def['slug'], 'Cambios guardados.');
@@ -88,7 +89,7 @@ final class CatalogController extends Controller
 
     public function destroy(string $catalog, string $id): void
     {
-        $def = Catalog::get($catalog);
+        $def = $this->definition($catalog);
         $row = $this->find($def, $id);
         foreach ($def['in_use'] as [$table, $column]) {
             if (Database::value("SELECT 1 FROM {$table} WHERE {$column} = ? LIMIT 1", [$row['id']])) {
@@ -100,12 +101,30 @@ final class CatalogController extends Controller
         $this->redirect('/admin/maestros/' . $def['slug'], 'Registro eliminado.');
     }
 
+    /** Definición del maestro, controlando el permiso propio de cada uno. */
+    private function definition(string $catalog): array
+    {
+        $def = Catalog::get($catalog);
+        $this->authorize(Catalog::permission($def));
+        return $def;
+    }
+
+    private function word(array $def, string $masculine, string $feminine): string
+    {
+        return ($def['gender'] ?? 'm') === 'f' ? $feminine : $masculine;
+    }
+
+    private function created(array $def): string
+    {
+        return ucfirst($def['singular']) . ' ' . $this->word($def, 'creado', 'creada') . '.';
+    }
+
     private function find(array $def, string $id): array
     {
         return Database::fetch("SELECT * FROM {$def['table']} WHERE id = ?", [(int) $id]) ?? throw new HttpException(404);
     }
 
-    private function input(array $def): array
+    private function input(array $def, int $ignoreId = 0): array
     {
         $rules = [];
         $labels = [];
@@ -113,6 +132,15 @@ final class CatalogController extends Controller
             $rules[$name] = $field['rules'];
             $labels[$name] = $field['label'];
         }
-        return $this->validate($rules, $labels);
+        $data = $this->validate($rules, $labels);
+        foreach ($def['fields'] as $name => $field) {
+            if (!empty($field['unique']) && $data[$name] !== null
+                && Database::value("SELECT 1 FROM {$def['table']} WHERE {$name} = ? AND id <> ?", [$data[$name], $ignoreId])) {
+                Session::flash('_errors', [$name => 'Ya existe un registro con ese ' . mb_strtolower($field['label']) . '.']);
+                Session::flash('_old_input', $_POST);
+                $this->back('Revisá los campos marcados.');
+            }
+        }
+        return $data;
     }
 }

@@ -8,7 +8,15 @@ $action = $m ? url('/admin/materiales/' . $m['id']) : url('/admin/materiales');
   <div class="card-body form-grid">
     <div class="field"><label for="code" class="req">Código</label><input id="code" name="code" value="<?= e($val('code')) ?>" required maxlength="60"<?= invalid('code') ?>><?= field_error('code') ?></div>
     <div class="field span-2"><label for="name" class="req">Nombre</label><input id="name" name="name" value="<?= e($val('name')) ?>" required maxlength="190"<?= invalid('name') ?>><?= field_error('name') ?></div>
-    <div class="field"><label for="category">Categoría</label><input id="category" name="category" value="<?= e($val('category')) ?>" maxlength="80" placeholder="Tornillos, Placas, Prótesis…"></div>
+    <div class="field">
+      <label for="category_id">Categoría</label>
+      <select id="category_id" name="category_id"<?= invalid('category_id') ?>>
+        <option value="">Sin categoría</option>
+        <?php foreach ($categories as $id => $name): ?><option value="<?= (int) $id ?>"<?= selected($val('category_id'), $id) ?>><?= e($name) ?></option><?php endforeach; ?>
+      </select>
+      <?= field_error('category_id') ?>
+      <a class="hint" href="<?= url('/admin/maestros/categorias-materiales') ?>" target="_blank" rel="noopener">Administrar categorías ↗</a>
+    </div>
     <div class="field"><label for="unit" class="req">Unidad</label><input id="unit" name="unit" value="<?= e($val('unit', 'u')) ?>" required maxlength="20"></div>
     <div class="field"><label for="price">Precio de lista ($)</label><input id="price" type="number" step="0.01" min="0" name="price" value="<?= e($val('price', '0')) ?>"<?= invalid('price') ?>><?= field_error('price') ?></div>
     <?php if (!$m): ?>
