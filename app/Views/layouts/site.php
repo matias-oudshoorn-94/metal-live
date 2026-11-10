@@ -12,6 +12,7 @@ $social = site_social();
   <meta name="description" content="Metal Live ®, empresa argentina líder en la producción y distribución de implantes traumatológicos. Innovación en implantes, compromiso en salud.">
   <meta name="theme-color" content="#0b1b36">
   <link rel="icon" href="<?= asset('img/favicon.png') ?>">
+  <link rel="preload" href="<?= url('assets/fonts/plus-jakarta-sans.woff2') ?>" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="<?= asset('css/base.css') ?>">
   <link rel="stylesheet" href="<?= asset('css/site.css') ?>">
   <script src="<?= asset('js/site.js') ?>" type="module" nonce="<?= e(csp_nonce()) ?>"></script>
@@ -71,7 +72,8 @@ $social = site_social();
     </div>
   </div>
   <div class="container footer-bottom">
-    <span>© Powered by Metal Live® SRL <?= date('Y') ?></span>
+    <span>© <?= date('Y') ?> Metal Live® SRL. Derechos reservados.</span>
+    <span>Desarrollado por <a href="https://wa.me/5492235044427" target="_blank" rel="noopener">Matias Oudshoorn</a></span>
   </div>
 </footer>
 <?php if (site_info('whatsapp')): ?>

@@ -2,7 +2,15 @@
    Metal Live · sitio institucional
    ========================================================================== */
 
-body.site { background: #fff; font-size: 16px; }
+/* Tipografía del sitio: Plus Jakarta Sans (variable, alojada en el proyecto; licencia OFL). */
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("../fonts/plus-jakarta-sans.woff2") format("woff2");
+}
+body.site { --font: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif; background: #fff; font-size: 16px; word-spacing: .06em; }
 
 /* ---------- Header ---------- */
 .site-header {
@@ -247,6 +255,7 @@ a.product-chip:hover { text-decoration: none; transform: translateY(-3px); box-s
 .contact-list li { display: flex; gap: .6rem; align-items: flex-start; }
 .contact-list .icon { color: var(--brand); margin-top: 3px; }
 .footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; padding: 1.25rem 0; border-top: 1px solid rgb(255 255 255 / 8%); font-size: .85rem; }
+.footer-bottom a { color: #fff; font-weight: 600; }
 @media (max-width: 760px) { .footer-grid { grid-template-columns: 1fr; } }
 
 .wa-float {
