@@ -78,7 +78,40 @@ $addForeignColumn = static function (string $table, string $column, string $refe
     return true;
 };
 
-$addForeignColumn('clients', 'health_insurance_id', 'health_insurances');
+// Quita una columna con clave foránea. En SQLite no se puede: queda sin uso.
+$dropForeignColumn = static function (string $table, string $column) use ($driver, $pdo, $columnExists): void {
+    if ($driver !== 'mysql' || !$columnExists($table, $column)) {
+        return;
+    }
+    $constraints = Database::fetchAll(
+        'SELECT constraint_name AS name FROM information_schema.key_column_usage
+          WHERE table_schema = DATABASE() AND table_name = ? AND column_name = ? AND referenced_table_name IS NOT NULL',
+        [$table, $column]
+    );
+    foreach (array_column($constraints, 'name') as $name) {
+        $pdo->exec("ALTER TABLE {$table} DROP FOREIGN KEY `{$name}`");
+    }
+    $pdo->exec("ALTER TABLE {$table} DROP COLUMN {$column}");
+    echo "Columna quitada: {$table}.{$column}.\n";
+};
+
+// Cobertura del paciente: pasa de apuntar a un cliente a la tabla de obras sociales.
+if ($addForeignColumn('patients', 'health_insurance_id', 'health_insurances') && $columnExists('patients', 'client_id')) {
+    Database::transaction(static function (): void {
+        $used = Database::fetchAll('SELECT DISTINCT c.id, c.name, c.cuit, c.phone, c.email FROM patients p JOIN clients c ON c.id = p.client_id');
+        foreach ($used as $client) {
+            $id = Database::value('SELECT id FROM health_insurances WHERE name = ?', [$client['name']])
+                ?: Database::insert('health_insurances', [
+                    'name' => $client['name'], 'cuit' => $client['cuit'], 'phone' => $client['phone'], 'email' => $client['email'],
+                    'active' => 1, 'created_at' => now(), 'updated_at' => now(),
+                ]);
+            Database::query('UPDATE patients SET health_insurance_id = ? WHERE client_id = ?', [$id, $client['id']]);
+        }
+    });
+    echo "Coberturas de pacientes migradas a obras sociales.\n";
+}
+$dropForeignColumn('patients', 'client_id');
+$dropForeignColumn('clients', 'health_insurance_id');
 
 // Categorías de materiales: pasan de texto libre a la tabla material_categories.
 $addForeignColumn('materials', 'category_id', 'material_categories');
@@ -164,9 +197,9 @@ $insurances = $ins('health_insurances', [
     ['name' => 'IOMA', 'code' => 'IOMA'],
 ]);
 $clients = $ins('clients', [
-    ['name' => 'OSDE', 'type' => 'prepaga', 'health_insurance_id' => $insurances[0], 'cuit' => '30-54674271-6', 'payment_terms' => '60 días', 'contact' => 'Auditoría médica'],
-    ['name' => 'PAMI', 'type' => 'obra_social', 'health_insurance_id' => $insurances[1], 'payment_terms' => '90 días'],
-    ['name' => 'Swiss Medical', 'type' => 'prepaga', 'health_insurance_id' => $insurances[2], 'payment_terms' => '45 días'],
+    ['name' => 'OSDE', 'type' => 'prepaga', 'cuit' => '30-54674271-6', 'payment_terms' => '60 días', 'contact' => 'Auditoría médica'],
+    ['name' => 'PAMI', 'type' => 'obra_social', 'payment_terms' => '90 días'],
+    ['name' => 'Swiss Medical', 'type' => 'prepaga', 'payment_terms' => '45 días'],
     ['name' => 'Galeno ART', 'type' => 'art', 'payment_terms' => '30 días'],
     ['name' => 'Particular', 'type' => 'particular', 'payment_terms' => 'Contado'],
 ]);
@@ -181,10 +214,10 @@ $doctors = $ins('doctors', [
     ['last_name' => 'Ruiz', 'first_name' => 'Esteban', 'license' => 'MP 7788', 'specialty' => 'Artroscopía'],
 ]);
 $patients = $ins('patients', [
-    ['last_name' => 'Pérez', 'first_name' => 'María', 'document' => '28111222', 'client_id' => $clients[0], 'member_number' => '61 123456 7 01'],
-    ['last_name' => 'López', 'first_name' => 'Héctor', 'document' => '12345678', 'client_id' => $clients[1]],
-    ['last_name' => 'Sosa', 'first_name' => 'Valentina', 'document' => '40999888', 'client_id' => $clients[2]],
-    ['last_name' => 'Acosta', 'first_name' => 'Ricardo', 'document' => '30555444', 'client_id' => $clients[3]],
+    ['last_name' => 'Pérez', 'first_name' => 'María', 'document' => '28111222', 'health_insurance_id' => $insurances[0], 'member_number' => '61 123456 7 01'],
+    ['last_name' => 'López', 'first_name' => 'Héctor', 'document' => '12345678', 'health_insurance_id' => $insurances[1]],
+    ['last_name' => 'Sosa', 'first_name' => 'Valentina', 'document' => '40999888', 'health_insurance_id' => $insurances[2]],
+    ['last_name' => 'Acosta', 'first_name' => 'Ricardo', 'document' => '30555444'],
 ]);
 $ins('instrumentists', [
     ['last_name' => 'Benítez', 'first_name' => 'Laura', 'phone' => '11 4444-1111', 'active' => 1],
@@ -251,7 +284,7 @@ foreach ($surgeries as $i => [$stage, $p, $inst, $doc, $sellerIdx, $proc, $items
     $seller = $uid[$sellerIdx === 4 ? 'vendedor@demo.local' : 'vendedora@demo.local'];
     $sid = Database::insert('surgeries', [
         'stage' => $stage, 'status' => 'activa', 'patient_id' => $patients[$p], 'institution_id' => $institutions[$inst],
-        'doctor_id' => $doctors[$doc], 'client_id' => Database::value('SELECT client_id FROM patients WHERE id = ?', [$patients[$p]]),
+        'doctor_id' => $doctors[$doc], 'client_id' => $clients[$p],
         'seller_id' => $seller, 'procedure_name' => $proc, 'commission_pct' => 5, 'fee_amount' => 450000 + $i * 50000,
         'custom_data' => json_encode(['lateralidad' => 'Derecha', 'urgencia' => 0]),
         'scheduled_at' => date('Y-m-d 08:30:00', strtotime($when)),

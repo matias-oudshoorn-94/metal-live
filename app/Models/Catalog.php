@@ -32,7 +32,7 @@ final class Catalog
                 'icon' => 'user',
                 'order' => 'last_name, first_name',
                 'search' => ['last_name', 'first_name', 'document'],
-                'list' => ['last_name' => 'Apellido', 'first_name' => 'Nombre', 'document' => 'DNI', 'client_id' => 'Cobertura', 'phone' => 'Teléfono'],
+                'list' => ['last_name' => 'Apellido', 'first_name' => 'Nombre', 'document' => 'DNI', 'health_insurance_id' => 'Obra social', 'phone' => 'Teléfono'],
                 'fields' => [
                     'last_name' => ['label' => 'Apellido', 'rules' => 'required|max:120'],
                     'first_name' => ['label' => 'Nombre', 'rules' => 'required|max:120'],
@@ -40,7 +40,7 @@ final class Catalog
                     'birth_date' => ['label' => 'Fecha de nacimiento', 'type' => 'date', 'rules' => 'date'],
                     'phone' => ['label' => 'Teléfono', 'type' => 'tel', 'rules' => 'max:40'],
                     'email' => ['label' => 'Correo', 'type' => 'email', 'rules' => 'email|max:190'],
-                    'client_id' => ['label' => 'Cobertura (cliente)', 'type' => 'select', 'source' => ['clients', 'name'], 'rules' => 'exists:clients'],
+                    'health_insurance_id' => ['label' => 'Obra social / cobertura', 'type' => 'select', 'source' => ['health_insurances', 'name'], 'rules' => 'exists:health_insurances', 'manage' => 'obras-sociales'],
                     'member_number' => ['label' => 'N.º de afiliado', 'rules' => 'max:60'],
                     'notes' => ['label' => 'Observaciones', 'type' => 'textarea', 'rules' => 'max:2000', 'wide' => true],
                 ],
@@ -92,11 +92,10 @@ final class Catalog
                 'icon' => 'briefcase',
                 'order' => 'name',
                 'search' => ['name', 'cuit'],
-                'list' => ['name' => 'Nombre', 'type' => 'Tipo', 'health_insurance_id' => 'Obra social', 'cuit' => 'CUIT', 'contact' => 'Contacto', 'payment_terms' => 'Condición de pago'],
+                'list' => ['name' => 'Nombre', 'type' => 'Tipo', 'cuit' => 'CUIT', 'contact' => 'Contacto', 'payment_terms' => 'Condición de pago'],
                 'fields' => [
                     'name' => ['label' => 'Nombre / razón social', 'rules' => 'required|max:160'],
                     'type' => ['label' => 'Tipo', 'type' => 'select', 'options' => self::CLIENT_TYPES, 'rules' => 'required|in:' . implode(',', array_keys(self::CLIENT_TYPES))],
-                    'health_insurance_id' => ['label' => 'Obra social', 'type' => 'select', 'source' => ['health_insurances', 'name'], 'rules' => 'exists:health_insurances', 'manage' => 'obras-sociales'],
                     'cuit' => ['label' => 'CUIT', 'rules' => 'max:20'],
                     'address' => ['label' => 'Dirección', 'rules' => 'max:255'],
                     'phone' => ['label' => 'Teléfono', 'type' => 'tel', 'rules' => 'max:40'],
@@ -105,7 +104,7 @@ final class Catalog
                     'payment_terms' => ['label' => 'Condición de pago', 'rules' => 'max:120'],
                     'notes' => ['label' => 'Observaciones', 'type' => 'textarea', 'rules' => 'max:2000', 'wide' => true],
                 ],
-                'in_use' => [['surgeries', 'client_id'], ['patients', 'client_id'], ['consignment_movements', 'client_id']],
+                'in_use' => [['surgeries', 'client_id'], ['consignment_movements', 'client_id']],
             ],
             'obras-sociales' => [
                 'table' => 'health_insurances',
@@ -125,7 +124,7 @@ final class Catalog
                     'active' => ['label' => 'Activa', 'type' => 'checkbox', 'rules' => 'bool', 'default' => 1],
                     'notes' => ['label' => 'Observaciones', 'type' => 'textarea', 'rules' => 'max:2000', 'wide' => true],
                 ],
-                'in_use' => [['clients', 'health_insurance_id']],
+                'in_use' => [['patients', 'health_insurance_id']],
             ],
             'categorias-materiales' => [
                 'table' => 'material_categories',

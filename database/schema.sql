@@ -61,7 +61,6 @@ CREATE TABLE clients (
     id {{PK}},
     name VARCHAR(160) NOT NULL,
     type VARCHAR(30) NOT NULL DEFAULT 'obra_social',
-    health_insurance_id INTEGER NULL,
     cuit VARCHAR(20) NULL,
     address VARCHAR(255) NULL,
     phone VARCHAR(40) NULL,
@@ -70,8 +69,7 @@ CREATE TABLE clients (
     payment_terms VARCHAR(120) NULL,
     notes TEXT NULL,
     created_at DATETIME NULL,
-    updated_at DATETIME NULL,
-    FOREIGN KEY (health_insurance_id) REFERENCES health_insurances(id) ON DELETE SET NULL
+    updated_at DATETIME NULL
 ){{ENGINE}};
 
 CREATE TABLE patients (
@@ -82,12 +80,12 @@ CREATE TABLE patients (
     birth_date DATE NULL,
     phone VARCHAR(40) NULL,
     email VARCHAR(190) NULL,
-    client_id INTEGER NULL,
+    health_insurance_id INTEGER NULL,
     member_number VARCHAR(60) NULL,
     notes TEXT NULL,
     created_at DATETIME NULL,
     updated_at DATETIME NULL,
-    FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL
+    FOREIGN KEY (health_insurance_id) REFERENCES health_insurances(id) ON DELETE SET NULL
 ){{ENGINE}};
 CREATE INDEX idx_patients_document ON patients (document);
 
