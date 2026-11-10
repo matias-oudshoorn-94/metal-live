@@ -1,6 +1,6 @@
 <?php
 $page ??= '';
-$links = ['productos' => 'Productos', 'nosotros' => 'Nosotros', 'preguntas-frecuentes' => 'Preguntas frecuentes', 'sumate-al-equipo' => 'Sumate al equipo', 'contacto' => 'Contacto'];
+$links = ['home' => 'Inicio', 'productos' => 'Productos', 'nosotros' => 'Nosotros', 'preguntas-frecuentes' => 'Preguntas frecuentes', 'sumate-al-equipo' => 'Sumate al equipo', 'contacto' => 'Contacto'];
 $social = site_social();
 ?>
 <!doctype html>
@@ -28,7 +28,7 @@ $social = site_social();
     <button class="nav-toggle" type="button" aria-controls="site-nav" aria-expanded="false" aria-label="Menú" data-nav-toggle><?= icon('menu') ?></button>
     <nav id="site-nav" class="site-nav" aria-label="Principal">
       <?php foreach ($links as $slug => $label): ?>
-        <a href="<?= url('/' . $slug) ?>"<?= $page === $slug ? ' aria-current="page"' : '' ?>><?= e($label) ?></a>
+        <a href="<?= url($slug === 'home' ? '/' : '/' . $slug) ?>"<?= $page === $slug ? ' aria-current="page"' : '' ?>><?= e($label) ?></a>
       <?php endforeach; ?>
       <a href="<?= url('/admin') ?>" class="btn btn-light btn-sm">Acceso clientes</a>
     </nav>
@@ -57,7 +57,7 @@ $social = site_social();
     <div>
       <h2>Navegación</h2>
       <ul>
-        <?php foreach ($links as $slug => $label): ?><li><a href="<?= url('/' . $slug) ?>"><?= e($label) ?></a></li><?php endforeach; ?>
+        <?php foreach ($links as $slug => $label): ?><li><a href="<?= url($slug === 'home' ? '/' : '/' . $slug) ?>"><?= e($label) ?></a></li><?php endforeach; ?>
         <li><a href="<?= url('/admin') ?>">Acceso al sistema</a></li>
       </ul>
     </div>
