@@ -64,3 +64,16 @@
     </form>
   </div>
 </section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-head reveal">
+      <p class="eyebrow">Ubicación</p>
+      <h2>Dónde estamos</h2>
+      <p><?= e(site_info('address')) ?> · <a href="<?= e(site_map_url()) ?>" target="_blank" rel="noopener">Cómo llegar ↗</a></p>
+    </div>
+    <div class="map-embed reveal">
+      <iframe src="<?= e(site_map_embed_url()) ?>" title="Mapa: <?= e(site_info('address')) ?>" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+    </div>
+  </div>
+</section>

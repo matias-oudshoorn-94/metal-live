@@ -19,6 +19,8 @@ final class Response
         $nonce = self::nonce();
         header("Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-{$nonce}'; "
             . "style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; "
+            // Solo se permite incrustar el mapa de Google en Contacto.
+            . "frame-src https://www.google.com; "
             . "form-action 'self'; frame-ancestors 'none'; base-uri 'self'; object-src 'none'");
         header('X-Content-Type-Options: nosniff');
         header('X-Frame-Options: DENY');

@@ -246,6 +246,12 @@ function site_map_url(): string
     return 'https://www.google.com/maps/search/?api=1&query=' . rawurlencode(site_info('address'));
 }
 
+/** Mapa de Google para incrustar (no requiere clave de API). */
+function site_map_embed_url(): string
+{
+    return 'https://www.google.com/maps?q=' . rawurlencode(site_info('address')) . '&z=16&output=embed';
+}
+
 /** @return list<array{0:string,1:string,2:string}> ícono, nombre y enlace de cada red social */
 function site_social(): array
 {
