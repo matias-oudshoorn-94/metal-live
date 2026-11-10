@@ -14,10 +14,7 @@
         <div><strong>Todas</strong><span>Las coberturas médicas</span></div>
       </div>
     </div>
-    <div class="hero-art" aria-hidden="true">
-      <span class="c0"></span><span class="c1"></span><span class="c2"></span><span class="c3"></span><span class="c4"></span>
-      <span class="c5"></span><span class="c6"></span><span class="c7"></span><span class="c8"></span><span class="c9"></span>
-    </div>
+    <?= App\Core\View::partial('partials/hero_art') ?>
   </div>
 </section>
 

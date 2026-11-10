@@ -2,10 +2,13 @@
 $areas = site_job_areas();
 ?>
 <section class="page-hero">
-  <div class="container">
-    <p class="eyebrow">Trabajá con nosotros</p>
-    <h1>Sumate al equipo</h1>
-    <p>Completá tus datos y contanos en qué área te gustaría trabajar.</p>
+  <div class="container page-hero-grid">
+    <div>
+      <p class="eyebrow">Trabajá con nosotros</p>
+      <h1>Sumate al equipo</h1>
+      <p>Completá tus datos y contanos en qué área te gustaría trabajar.</p>
+    </div>
+    <?= App\Core\View::partial('partials/hero_art', ['class' => 'page-hero-art']) ?>
   </div>
 </section>
 

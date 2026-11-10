@@ -1,8 +1,11 @@
 <section class="page-hero">
-  <div class="container">
-    <p class="eyebrow">Nosotros</p>
-    <h1>La confianza que necesitás. La solución que esperás.</h1>
-    <p>Implantes de alta calidad para acompañar tu experiencia en cada cirugía.</p>
+  <div class="container page-hero-grid">
+    <div>
+      <p class="eyebrow">Nosotros</p>
+      <h1>La confianza que necesitás. La solución que esperás.</h1>
+      <p>Implantes de alta calidad para acompañar tu experiencia en cada cirugía.</p>
+    </div>
+    <?= App\Core\View::partial('partials/hero_art', ['class' => 'page-hero-art']) ?>
   </div>
 </section>
 

@@ -1,8 +1,11 @@
 <section class="page-hero">
-  <div class="container">
-    <p class="eyebrow">Productos</p>
-    <h1>Nuestros productos</h1>
-    <p>Implantes de alta calidad para acompañar tu experiencia en cada cirugía. Comercializamos nuestros productos a todas las coberturas médicas del país.</p>
+  <div class="container page-hero-grid">
+    <div>
+      <p class="eyebrow">Productos</p>
+      <h1>Nuestros productos</h1>
+      <p>Implantes de alta calidad para acompañar tu experiencia en cada cirugía. Comercializamos nuestros productos a todas las coberturas médicas del país.</p>
+    </div>
+    <?= App\Core\View::partial('partials/hero_art', ['class' => 'page-hero-art']) ?>
   </div>
 </section>
 

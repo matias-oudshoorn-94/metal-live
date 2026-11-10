@@ -1,8 +1,11 @@
 <section class="page-hero">
-  <div class="container">
-    <p class="eyebrow">Contacto</p>
-    <h1>¡Comunicate con nosotros!</h1>
-    <p>Dejanos tu consulta y te contactaremos cuanto antes.</p>
+  <div class="container page-hero-grid">
+    <div>
+      <p class="eyebrow">Contacto</p>
+      <h1>¡Comunicate con nosotros!</h1>
+      <p>Dejanos tu consulta y te contactaremos cuanto antes.</p>
+    </div>
+    <?= App\Core\View::partial('partials/hero_art', ['class' => 'page-hero-art']) ?>
   </div>
 </section>
 

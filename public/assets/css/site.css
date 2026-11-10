@@ -162,6 +162,14 @@ body.site { --font: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, R
 .page-hero { background: linear-gradient(160deg, var(--navy), #0d2348); color: #fff; padding: clamp(3rem, 6vw, 4.5rem) 0; }
 .page-hero h1 { font-size: clamp(1.9rem, 4vw, 2.8rem); margin-bottom: .5rem; }
 .page-hero p { color: #c3d2e8; max-width: 640px; font-size: 1.08rem; margin: 0; }
+.page-hero { overflow: hidden; }
+.page-hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2rem; align-items: center; }
+.page-hero-art { width: clamp(140px, 17vw, 210px); max-width: none; margin: -1rem 0; order: 0; }
+.page-hero-art .c0 { box-shadow: 0 18px 50px rgb(7 148 251 / 45%); }
+@media (max-width: 640px) {
+  .page-hero-grid { grid-template-columns: minmax(0, 1fr) 96px; gap: 1rem; align-items: start; }
+  .page-hero-art { width: 96px; margin: 0; }
+}
 
 .product-line { display: grid; grid-template-columns: 72px 1fr; gap: 1.5rem; padding: 2rem 0; border-bottom: 1px solid var(--line); }
 .product-line:last-child { border-bottom: 0; }
