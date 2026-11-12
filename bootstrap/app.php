@@ -22,6 +22,8 @@ require BASE_PATH . '/app/polyfills.php';
 require BASE_PATH . '/app/helpers.php';
 
 App\Core\Env::load(BASE_PATH . '/.env');
+// Opcional, solo para desarrollo: .env.local pisa valores del .env (por ejemplo, usar SQLite en vez de la base de producción).
+App\Core\Env::load(BASE_PATH . '/.env.local');
 
 date_default_timezone_set((string) env('APP_TIMEZONE', 'America/Argentina/Buenos_Aires'));
 mb_internal_encoding('UTF-8');

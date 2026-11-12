@@ -226,6 +226,60 @@ a.product-chip:hover { text-decoration: none; transform: translateY(-3px); box-s
 .contact-card .social-links .icon { color: #fff; margin: 0; }
 .contact-card-sub { margin-top: 2rem; }
 
+/* ---------- Implantes de fondo (ilustraciones en partials/implants.php) ---------- */
+.has-implants { position: relative; overflow: hidden; isolation: isolate; }
+.implant-layer { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.implant { position: absolute; display: block; height: auto; color: var(--brand); opacity: .08; overflow: visible;
+  transform: rotate(var(--r, 0deg)); animation: implant-drift var(--t, 24s) ease-in-out infinite alternate; }
+.implant-screw { aspect-ratio: 40 / 160; }
+.implant-plate { aspect-ratio: 200 / 44; }
+.implant-hip { aspect-ratio: 120 / 200; }
+.implant-knee { aspect-ratio: 140 / 160; }
+.implant-pedicle { aspect-ratio: 70 / 170; }
+.implant-nail { aspect-ratio: 40 / 240; }
+.implant-anchor { aspect-ratio: 60 / 130; }
+@keyframes implant-drift {
+  from { transform: translate3d(0, 0, 0) rotate(var(--r, 0deg)); }
+  to { transform: translate3d(var(--dx, 10px), var(--dy, -16px), 0) rotate(calc(var(--r, 0deg) + var(--dr, 5deg))); }
+}
+
+/* Hero (fondo oscuro) */
+.hero .implant { color: #7cc4ff; opacity: .13; }
+.imp-hero-screw { width: 44px; left: 46%; top: 9%; --r: 18deg; --t: 20s; }
+.imp-hero-plate { width: 250px; left: 30%; bottom: 5%; --r: -7deg; --t: 28s; --dx: -14px; --dy: 8px; }
+.imp-hero-nail { width: 30px; right: 3%; top: 6%; --r: -24deg; --t: 32s; --dr: -4deg; }
+
+/* Guiados por la excelencia */
+.imp-team-hip { width: 150px; right: -10px; top: 50px; --r: 14deg; --t: 26s; }
+.imp-team-pedicle { width: 68px; left: 1%; bottom: 40px; --r: -16deg; --t: 22s; --dx: 8px; }
+
+/* La confianza que necesitás */
+.imp-trust-knee { width: 170px; left: 2%; top: 40px; --r: -10deg; --t: 30s; }
+.imp-trust-screw { width: 42px; right: 8%; top: 56px; --r: 26deg; --t: 21s; --dx: -8px; }
+.imp-trust-plate { width: 220px; right: 3%; bottom: 36px; --r: 9deg; --t: 27s; --dy: 10px; }
+
+/* Cierre (fondo azul) */
+.cta-band .implant { color: #fff; opacity: .16; }
+.imp-cta-nail { width: 26px; right: 36%; top: -60px; --r: 62deg; --t: 30s; }
+.imp-cta-anchor { width: 48px; right: 3%; bottom: -26px; --r: -22deg; --t: 24s; }
+
+/* Detalle en las tarjetas de producto */
+.product-chip { position: relative; overflow: hidden; isolation: isolate; }
+.chip-implant { z-index: -1; right: -6px; bottom: -18px; width: auto; height: 118%; opacity: .1; --r: 16deg;
+  animation: none; transition: transform .5s ease, opacity .3s ease; }
+.chip-implant-plate { height: auto; width: 88%; right: -34px; bottom: 6px; --r: -24deg; }
+.chip-implant-hip, .chip-implant-knee { height: 125%; right: -18px; }
+a.product-chip:hover .chip-implant { opacity: .2; transform: translateY(-6px) rotate(calc(var(--r) - 8deg)); }
+
+@media (max-width: 760px) {
+  .imp-wide { display: none; }
+  .imp-hero-screw { left: auto; right: 8%; top: auto; bottom: 6%; }
+  .imp-hero-plate { width: 170px; left: -40px; }
+  .imp-team-hip { width: 110px; top: 20px; }
+  .imp-trust-knee { width: 120px; }
+}
+@media (prefers-reduced-motion: reduce) { .implant { animation: none; } }
+
 /* Mapa de Contacto */
 .map-embed { position: relative; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow); background: var(--bg); aspect-ratio: 16 / 7; }
 .map-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }

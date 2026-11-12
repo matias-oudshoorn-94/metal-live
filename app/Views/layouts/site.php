@@ -19,6 +19,7 @@ $social = site_social();
 </head>
 <body class="site">
 <?= App\Core\View::partial('partials/icons') ?>
+<?= App\Core\View::partial('partials/implants') ?>
 <a class="skip-link" href="#main">Saltar al contenido</a>
 <header class="site-header" data-header>
   <div class="container header-inner">

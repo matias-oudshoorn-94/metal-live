@@ -1,4 +1,9 @@
-<section class="hero">
+<section class="hero has-implants">
+  <div class="implant-layer" aria-hidden="true">
+    <?= implant('screw', 'imp-hero-screw') ?>
+    <?= implant('plate', 'imp-hero-plate') ?>
+    <?= implant('nail', 'imp-hero-nail imp-wide') ?>
+  </div>
   <div class="container hero-grid">
     <div>
       <p class="eyebrow">Implantes traumatológicos</p>
@@ -18,7 +23,11 @@
   </div>
 </section>
 
-<section class="section">
+<section class="section has-implants">
+  <div class="implant-layer" aria-hidden="true">
+    <?= implant('hip', 'imp-team-hip') ?>
+    <?= implant('pedicle', 'imp-team-pedicle imp-wide') ?>
+  </div>
   <div class="container">
     <div class="section-head reveal">
       <p class="eyebrow">Nuestro equipo</p>
@@ -37,7 +46,12 @@
   </div>
 </section>
 
-<section class="section section-alt">
+<section class="section section-alt has-implants">
+  <div class="implant-layer" aria-hidden="true">
+    <?= implant('knee', 'imp-trust-knee') ?>
+    <?= implant('screw', 'imp-trust-screw imp-wide') ?>
+    <?= implant('plate', 'imp-trust-plate imp-wide') ?>
+  </div>
   <div class="container">
     <div class="section-head center reveal">
       <p class="eyebrow">Por qué elegirnos</p>
@@ -64,8 +78,9 @@
       <p>Comercializamos nuestros productos a todas las coberturas médicas del país.</p>
     </div>
     <div class="product-grid">
-      <?php foreach (site_products() as [$icon, $name]): ?>
+      <?php foreach (site_products() as [$icon, $name, $art]): ?>
         <a class="product-chip reveal" href="<?= url('/productos') ?>">
+          <?= implant($art, 'chip-implant chip-implant-' . $art) ?>
           <span class="feature-icon"><?= icon($icon) ?></span>
           <strong><?= e($name) ?></strong>
         </a>
@@ -76,7 +91,11 @@
 
 <section class="section section-alt">
   <div class="container">
-    <div class="cta-band reveal">
+    <div class="cta-band has-implants reveal">
+      <div class="implant-layer" aria-hidden="true">
+        <?= implant('nail', 'imp-cta-nail') ?>
+        <?= implant('anchor', 'imp-cta-anchor imp-wide') ?>
+      </div>
       <div>
         <h2>¿Cómo obtengo un presupuesto?</h2>
         <p>Enviá una fotografía de tu receta médica y tu número de contacto por WhatsApp o por correo electrónico, y un asesor comercial se comunicará a la brevedad.</p>

@@ -12,8 +12,9 @@
 <section class="section">
   <div class="container">
     <div class="product-grid product-grid-lg">
-      <?php foreach (site_products() as [$icon, $name]): ?>
+      <?php foreach (site_products() as [$icon, $name, $art]): ?>
         <article class="product-chip reveal">
+          <?= implant($art, 'chip-implant chip-implant-' . $art) ?>
           <span class="feature-icon"><?= icon($icon) ?></span>
           <strong><?= e($name) ?></strong>
         </article>

@@ -292,14 +292,20 @@ function site_job_areas(): array
     return ['administracion' => 'Administración', 'cirugia' => 'Sector cirugía', 'ventas' => 'Ventas', 'otro' => 'Otro'];
 }
 
-/** Líneas de producto. */
+/** Líneas de producto: ícono, nombre e ilustración de implante (partials/implants). */
 function site_products(): array
 {
     return [
-        ['spine', 'Columna y Cráneo'],
-        ['joint', 'Cadera y Rodilla'],
-        ['bone', 'Tobillo y pie'],
-        ['activity', 'Miembros Superiores'],
-        ['scope', 'Medicina Artroscópica'],
+        ['spine', 'Columna y Cráneo', 'pedicle'],
+        ['joint', 'Cadera y Rodilla', 'hip'],
+        ['bone', 'Tobillo y pie', 'screw'],
+        ['activity', 'Miembros Superiores', 'plate'],
+        ['scope', 'Medicina Artroscópica', 'anchor'],
     ];
+}
+
+/** Ilustración decorativa de un implante (ver partials/implants.php). */
+function implant(string $name, string $class = ''): string
+{
+    return '<svg class="implant implant-' . e($name) . ' ' . e($class) . '" aria-hidden="true" focusable="false"><use href="#imp-' . e($name) . '"></use></svg>';
 }
