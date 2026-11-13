@@ -1,6 +1,6 @@
 <div class="page-head"><h2>Mensajes de contacto</h2></div>
 <?php if (!$rows): ?>
-  <section class="card"><div class="empty"><?= icon('mail') ?>No hay mensajes.</div></section>
+  <section class="card"><div class="empty"><?= icon('mail') ?>Todavía no llegaron mensajes desde el formulario de contacto del sitio.</div></section>
 <?php endif; ?>
 <div class="grid grid-2">
 <?php foreach ($rows as $m): ?>
