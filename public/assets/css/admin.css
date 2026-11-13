@@ -85,9 +85,9 @@
 }
 
 /* ---------- Encabezado de página ---------- */
-.page-head { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1rem; margin-bottom: 1.25rem; }
-.page-head h2 { margin: 0; font-size: 1.6rem; font-weight: 800; letter-spacing: -.02em; }
-.page-head .subtitle { width: 100%; margin: -.25rem 0 0; color: var(--muted); font-size: .92rem; }
+.page-head { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1rem; margin-bottom: 1.5rem; }
+.page-head h2 { margin: 0; font-size: 1.6rem; font-weight: 800; line-height: 1.15; letter-spacing: -.02em; }
+.page-head .subtitle { width: 100%; margin: .4rem 0 0; color: var(--muted); font-size: .92rem; line-height: 1.45; }
 .page-head .actions { margin-left: auto; display: flex; flex-wrap: wrap; gap: .5rem; }
 
 /* ---------- Tarjetas ---------- */
