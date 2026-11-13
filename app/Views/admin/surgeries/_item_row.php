@@ -1,6 +1,6 @@
 <tr>
   <td>
-    <select name="items[<?= e($index) ?>][material_id]" data-material aria-label="Material">
+    <select name="items[<?= e($index) ?>][material_id]" data-material data-combobox data-combobox-code data-placeholder="Buscar por código o nombre (vacío = ítem libre)" aria-label="Material">
       <option value="">— Ítem libre —</option>
       <?php foreach ($materials as $m): ?>
         <option value="<?= (int) $m['id'] ?>" data-name="<?= e($m['name']) ?>" data-price="<?= e($m['price']) ?>"<?= selected($item['material_id'] ?? '', $m['id']) ?>><?= e($m['code'] . ' · ' . $m['name']) ?></option>

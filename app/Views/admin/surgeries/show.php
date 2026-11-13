@@ -364,7 +364,7 @@ $canEditQuote = can('quote.edit') && (can('surgeries.view_all') || $isOwner) && 
       <template data-row-template="consumption">
         <tr>
           <td>
-            <select name="items[__INDEX__][material_id]" aria-label="Material">
+            <select name="items[__INDEX__][material_id]" data-combobox data-combobox-code data-placeholder="Buscar material por código o nombre" aria-label="Material">
               <option value="">Seleccionar material…</option>
               <?php foreach ($materials as $m): ?><option value="<?= (int) $m['id'] ?>"><?= e($m['code'] . ' · ' . $m['name']) ?> (stock <?= (int) $m['stock_qty'] ?>)</option><?php endforeach; ?>
             </select>

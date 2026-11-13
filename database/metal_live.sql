@@ -1,5 +1,5 @@
 -- Metal Live · base de datos completa para MySQL 8 / MariaDB 10.6+
--- Generado el 2026-11-07 10:10 desde sqlite (estructura y datos)
+-- Generado el 2026-11-12 15:30 desde sqlite (estructura y datos)
 -- Importar en una base vacía, por ejemplo:
 --   CREATE DATABASE metal_live CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 --   mysql -u usuario -p metal_live < metal_live.sql
@@ -27,12 +27,14 @@ DROP TABLE IF EXISTS `custom_fields`;
 DROP TABLE IF EXISTS `box_items`;
 DROP TABLE IF EXISTS `boxes`;
 DROP TABLE IF EXISTS `materials`;
+DROP TABLE IF EXISTS `material_categories`;
 DROP TABLE IF EXISTS `suppliers`;
 DROP TABLE IF EXISTS `instrumentists`;
 DROP TABLE IF EXISTS `doctors`;
 DROP TABLE IF EXISTS `institutions`;
 DROP TABLE IF EXISTS `patients`;
 DROP TABLE IF EXISTS `clients`;
+DROP TABLE IF EXISTS `health_insurances`;
 DROP TABLE IF EXISTS `login_attempts`;
 DROP TABLE IF EXISTS `users`;
 DROP TABLE IF EXISTS `role_permissions`;
@@ -81,6 +83,19 @@ CREATE INDEX idx_login_attempts_email ON login_attempts (email, attempted_at);
 
 CREATE INDEX idx_login_attempts_ip ON login_attempts (ip, attempted_at);
 
+CREATE TABLE health_insurances (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(160) NOT NULL,
+    code VARCHAR(40) NULL,
+    cuit VARCHAR(20) NULL,
+    phone VARCHAR(40) NULL,
+    email VARCHAR(190) NULL,
+    active TINYINT NOT NULL DEFAULT 1,
+    notes TEXT NULL,
+    created_at DATETIME NULL,
+    updated_at DATETIME NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE clients (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(160) NOT NULL,
@@ -104,12 +119,12 @@ CREATE TABLE patients (
     birth_date DATE NULL,
     phone VARCHAR(40) NULL,
     email VARCHAR(190) NULL,
-    client_id INT UNSIGNED NULL,
+    health_insurance_id INT UNSIGNED NULL,
     member_number VARCHAR(60) NULL,
     notes TEXT NULL,
     created_at DATETIME NULL,
     updated_at DATETIME NULL,
-    FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL
+    FOREIGN KEY (health_insurance_id) REFERENCES health_insurances(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE INDEX idx_patients_document ON patients (document);
@@ -165,11 +180,19 @@ CREATE TABLE suppliers (
     updated_at DATETIME NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE material_categories (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(80) NOT NULL,
+    notes TEXT NULL,
+    created_at DATETIME NULL,
+    updated_at DATETIME NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE materials (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(60) NOT NULL UNIQUE,
     name VARCHAR(190) NOT NULL,
-    category VARCHAR(80) NULL,
+    category_id INT UNSIGNED NULL,
     unit VARCHAR(20) NOT NULL DEFAULT 'u',
     price DECIMAL(12,2) NOT NULL DEFAULT 0,
     stock_qty INTEGER NOT NULL DEFAULT 0,
@@ -177,7 +200,8 @@ CREATE TABLE materials (
     active TINYINT NOT NULL DEFAULT 1,
     notes TEXT NULL,
     created_at DATETIME NULL,
-    updated_at DATETIME NULL
+    updated_at DATETIME NULL,
+    FOREIGN KEY (category_id) REFERENCES material_categories(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE boxes (
@@ -484,13 +508,13 @@ CREATE TABLE contact_messages (
 
 -- roles: 7 registros
 INSERT INTO `roles` (`id`, `slug`, `name`, `description`, `created_at`) VALUES
-(1, 'gerente', 'Gerentes', 'Acceso total, incluidos los estadios de caja.', '2026-11-07 09:58:41'),
-(2, 'cotizacion', 'Cotización', 'Carga y edita cotizaciones y órdenes de compra.', '2026-11-07 09:58:41'),
-(3, 'cx', 'Equipo de Cx', 'Confirma fecha y horario; carga PDF, consumo y observaciones.', '2026-11-07 09:58:41'),
-(4, 'facturacion', 'Facturación', 'Emite facturas; marca honorario liquidado, cobrado y pago a proveedores.', '2026-11-07 09:58:41'),
-(5, 'cobranzas', 'Cobranzas', 'Carga fecha de pago, tipo de pago y datos del cheque. No ve datos de Cx.', '2026-11-07 09:58:41'),
-(6, 'vendedor', 'Vendedores', 'Cargan cotizaciones con la receta del médico. Ven solo sus cirugías.', '2026-11-07 09:58:41'),
-(7, 'chofer', 'Choferes', 'Reciben avisos de preparación y reparto; confirman la entrega.', '2026-11-07 09:58:41');
+(1, 'gerente', 'Gerentes', 'Acceso total, incluidos los estadios de caja.', '2026-11-12 15:30:14'),
+(2, 'cotizacion', 'Cotización', 'Carga y edita cotizaciones y órdenes de compra.', '2026-11-12 15:30:15'),
+(3, 'cx', 'Equipo de Cx', 'Confirma fecha y horario; carga PDF, consumo y observaciones.', '2026-11-12 15:30:15'),
+(4, 'facturacion', 'Facturación', 'Emite facturas; marca honorario liquidado, cobrado y pago a proveedores.', '2026-11-12 15:30:15'),
+(5, 'cobranzas', 'Cobranzas', 'Carga fecha de pago, tipo de pago y datos del cheque. No ve datos de Cx.', '2026-11-12 15:30:15'),
+(6, 'vendedor', 'Vendedores', 'Cargan cotizaciones con la receta del médico. Ven solo sus cirugías.', '2026-11-12 15:30:15'),
+(7, 'chofer', 'Choferes', 'Reciben avisos de preparación y reparto; confirman la entrega.', '2026-11-12 15:30:15');
 
 -- role_permissions: 73 registros
 INSERT INTO `role_permissions` (`role_id`, `permission`) VALUES
@@ -568,155 +592,8 @@ INSERT INTO `role_permissions` (`role_id`, `permission`) VALUES
 (7, 'deliveries.view_own'),
 (7, 'delivery.confirm');
 
--- users: 8 registros
+-- users: 1 registros
 INSERT INTO `users` (`id`, `role_id`, `name`, `email`, `phone`, `password_hash`, `commission_pct`, `notify_email`, `notify_whatsapp`, `active`, `last_login_at`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Administrador', 'admin@metallive.com.ar', NULL, '$argon2id$v=19$m=65536,t=4,p=1$LlVycXBOWTViZzFYQWZvZg$34ti2K6CeK52E5ArTmOWi9ulatoHHqTf0ZTQiCBuncg', 0, 1, 0, 1, NULL, '2026-11-07 09:58:42', '2026-11-07 09:58:42'),
-(2, 2, 'Lucía Cotizaciones', 'cotizacion@demo.local', '+54 9 11 5555-2063', '$argon2id$v=19$m=65536,t=4,p=1$RElTOWFPMFRWdlpkbVdpag$d4jdydzCxr7FK3mTDCifMzUGLIFZynrOi8stgNR8Xz0', 0, 1, 0, 1, NULL, '2026-11-07 09:58:42', '2026-11-07 09:58:42'),
-(3, 3, 'Equipo Cx', 'cx@demo.local', '+54 9 11 5555-8118', '$argon2id$v=19$m=65536,t=4,p=1$VXpTL1pDMFBTZmE4VzIzTA$+syF6soVFxQ2hpNltxV7NSX+tD5uwazO6FX54Jqj7XI', 0, 1, 0, 1, NULL, '2026-11-07 09:58:42', '2026-11-07 09:58:42'),
-(4, 4, 'Martín Facturación', 'facturacion@demo.local', '+54 9 11 5555-4974', '$argon2id$v=19$m=65536,t=4,p=1$dkpPMDNzeW9yRC5hVWxKSA$N63jJhHfrkqwHgNrI/ugQ0Dp3z4w2oky8kI+RKqOBJo', 0, 1, 0, 1, NULL, '2026-11-07 09:58:42', '2026-11-07 09:58:42'),
-(5, 5, 'Paula Cobranzas', 'cobranzas@demo.local', '+54 9 11 5555-7111', '$argon2id$v=19$m=65536,t=4,p=1$Q2xmeGhwMndMLzVjai82Lg$SxGKsne0Gg/QoMeAB+daNOD9Zx4xhHPWQCAJRo+hVEc', 0, 1, 0, 1, NULL, '2026-11-07 09:58:42', '2026-11-07 09:58:42'),
-(6, 6, 'Diego Vendedor', 'vendedor@demo.local', '+54 9 11 5555-8404', '$argon2id$v=19$m=65536,t=4,p=1$RE1XUEZKVXNOLzdkQmlYZA$JlDK7FITcz+tIBsSZStgcGNKA685HOUfWmNL+SNE/p4', 5, 1, 0, 1, NULL, '2026-11-07 09:58:42', '2026-11-07 09:58:42'),
-(7, 6, 'Sofía Vendedora', 'vendedora@demo.local', '+54 9 11 5555-8331', '$argon2id$v=19$m=65536,t=4,p=1$RG9sQkpQQXVwRS5qZ1FxNg$VJEP6cnBmK8gXDptTxnvH5LViwDp3lfZOT9hrBoxLpY', 4.5, 1, 0, 1, NULL, '2026-11-07 09:58:42', '2026-11-07 09:58:42'),
-(8, 7, 'Ramón Chofer', 'chofer@demo.local', '+54 9 11 5555-8216', '$argon2id$v=19$m=65536,t=4,p=1$S2ZzaVBEdC54U20wcGoxQg$sJ0/RkuD2PFiubKtsbL4bqz7vdzQnZe9nXiS0+OTpXw', 0, 1, 0, 1, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43');
-
--- clients: 5 registros
-INSERT INTO `clients` (`id`, `name`, `type`, `cuit`, `address`, `phone`, `email`, `contact`, `payment_terms`, `notes`, `created_at`, `updated_at`) VALUES
-(1, 'OSDE', 'prepaga', '30-54674271-6', NULL, NULL, NULL, 'Auditoría médica', '60 días', NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(2, 'PAMI', 'obra_social', NULL, NULL, NULL, NULL, NULL, '90 días', NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(3, 'Swiss Medical', 'prepaga', NULL, NULL, NULL, NULL, NULL, '45 días', NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(4, 'Galeno ART', 'art', NULL, NULL, NULL, NULL, NULL, '30 días', NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(5, 'Particular', 'particular', NULL, NULL, NULL, NULL, NULL, 'Contado', NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43');
-
--- patients: 4 registros
-INSERT INTO `patients` (`id`, `last_name`, `first_name`, `document`, `birth_date`, `phone`, `email`, `client_id`, `member_number`, `notes`, `created_at`, `updated_at`) VALUES
-(1, 'Pérez', 'María', '28111222', NULL, NULL, NULL, 1, '61 123456 7 01', NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(2, 'López', 'Héctor', '12345678', NULL, NULL, NULL, 2, NULL, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(3, 'Sosa', 'Valentina', '40999888', NULL, NULL, NULL, 3, NULL, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(4, 'Acosta', 'Ricardo', '30555444', NULL, NULL, NULL, 4, NULL, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43');
-
--- institutions: 3 registros
-INSERT INTO `institutions` (`id`, `name`, `cuit`, `address`, `city`, `phone`, `email`, `contact`, `notes`, `created_at`, `updated_at`) VALUES
-(1, 'Sanatorio Güemes', NULL, 'Francisco Acuña de Figueroa 1240', 'CABA', '011 4959-8200', NULL, NULL, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(2, 'Hospital Alemán', NULL, 'Av. Pueyrredón 1640', 'CABA', '011 4827-7000', NULL, NULL, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(3, 'Clínica San Camilo', NULL, 'Av. Ángel Gallardo 899', 'CABA', NULL, NULL, NULL, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43');
-
--- doctors: 3 registros
-INSERT INTO `doctors` (`id`, `last_name`, `first_name`, `license`, `specialty`, `phone`, `email`, `notes`, `created_at`, `updated_at`) VALUES
-(1, 'Fernández', 'Julián', 'MN 112233', 'Traumatología', NULL, NULL, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(2, 'Gómez', 'Carolina', 'MN 445566', 'Cirugía de columna', NULL, NULL, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(3, 'Ruiz', 'Esteban', 'MP 7788', 'Artroscopía', NULL, NULL, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43');
-
--- instrumentists: 2 registros
-INSERT INTO `instrumentists` (`id`, `last_name`, `first_name`, `phone`, `email`, `active`, `notes`, `created_at`, `updated_at`) VALUES
-(1, 'Benítez', 'Laura', '11 4444-1111', NULL, 1, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(2, 'Medina', 'Julieta', '11 4444-2222', NULL, 1, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43');
-
--- suppliers: 2 registros
-INSERT INTO `suppliers` (`id`, `name`, `cuit`, `phone`, `email`, `contact`, `notes`, `created_at`, `updated_at`) VALUES
-(1, 'OrthoImport S.A.', '30-71234567-8', NULL, NULL, NULL, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(2, 'Implantes del Sur S.R.L.', '30-70987654-3', NULL, NULL, NULL, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43');
-
--- materials: 13 registros
-INSERT INTO `materials` (`id`, `code`, `name`, `category`, `unit`, `price`, `stock_qty`, `min_stock`, `active`, `notes`, `created_at`, `updated_at`) VALUES
-(1, 'TOR-CORT-35', 'Tornillo cortical 3.5 mm', 'Tornillos', 'u', 18500, 160, 50, 1, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(2, 'TOR-ESP-65', 'Tornillo esponjoso 6.5 mm', 'Tornillos', 'u', 24300, 90, 30, 1, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(3, 'TOR-BLOQ-50', 'Tornillo bloqueado 5.0 mm', 'Tornillos', 'u', 31200, 120, 40, 1, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(4, 'PLA-LCP-45', 'Placa LCP 4.5 mm (8 orificios)', 'Placas', 'u', 285000, 12, 4, 1, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(5, 'PLA-TER-35', 'Placa tercio de caña 3.5 mm', 'Placas', 'u', 142000, 12, 5, 1, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(6, 'CLA-END-11', 'Clavo endomedular de fémur 11 mm', 'Clavos', 'u', 690000, 6, 2, 1, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(7, 'CLA-TIB-10', 'Clavo endomedular de tibia 10 mm', 'Clavos', 'u', 640000, 3, 3, 1, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(8, 'PRO-CAD-CEM', 'Prótesis total de cadera cementada', 'Prótesis', 'u', 2450000, 4, 2, 1, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(9, 'PRO-ROD-PS', 'Prótesis total de rodilla PS', 'Prótesis', 'u', 2980000, 3, 2, 1, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(10, 'ANC-SUT-50', 'Anclaje con sutura 5.0 mm', 'Artroscopía', 'u', 210000, 21, 8, 1, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(11, 'CEM-OSE-40', 'Cemento óseo 40 g', 'Consumibles', 'u', 98000, 30, 10, 1, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(12, 'TOR-PED-55', 'Tornillo pedicular 5.5 mm', 'Columna', 'u', 165000, 40, 16, 1, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(13, 'BAR-TIT-55', 'Barra de titanio 5.5 mm', 'Columna', 'u', 120000, 10, 4, 1, NULL, '2026-11-07 09:58:43', '2026-11-07 09:58:43');
-
--- boxes: 5 registros
-INSERT INTO `boxes` (`id`, `code`, `name`, `description`, `status`, `current_surgery_id`, `active`, `created_at`, `updated_at`) VALUES
-(1, 'CJ-OST-001', 'Caja osteosíntesis pequeños fragmentos', NULL, 'disponible', NULL, 1, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(2, 'CJ-OST-002', 'Caja osteosíntesis grandes fragmentos', NULL, 'disponible', NULL, 1, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(3, 'CJ-CLA-001', 'Caja clavos endomedulares', NULL, 'disponible', NULL, 1, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(4, 'CJ-COL-001', 'Caja instrumental de columna', NULL, 'disponible', NULL, 1, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(5, 'CJ-ART-001', 'Caja artroscopía hombro', NULL, 'disponible', NULL, 1, '2026-11-07 09:58:43', '2026-11-07 09:58:43');
-
--- box_items: 11 registros
-INSERT INTO `box_items` (`id`, `box_id`, `material_id`, `expected_qty`, `current_qty`) VALUES
-(1, 1, 1, 30, 30),
-(2, 1, 5, 4, 4),
-(3, 2, 2, 20, 20),
-(4, 2, 3, 24, 24),
-(5, 2, 4, 3, 3),
-(6, 3, 6, 2, 2),
-(7, 3, 7, 2, 2),
-(8, 3, 3, 8, 8),
-(9, 4, 12, 12, 12),
-(10, 4, 13, 4, 4),
-(11, 5, 10, 6, 6);
-
--- custom_fields: 2 registros
-INSERT INTO `custom_fields` (`id`, `entity`, `field_key`, `label`, `type`, `options`, `required`, `sort_order`, `active`, `created_at`) VALUES
-(1, 'surgery_quote', 'lateralidad', 'Lateralidad', 'select', 'Derecha\nIzquierda\nBilateral\nNo aplica', 0, 1, 1, '2026-11-07 09:58:43'),
-(2, 'surgery_quote', 'urgencia', 'Cirugía de urgencia', 'checkbox', NULL, 0, 2, 1, '2026-11-07 09:58:43');
-
--- surgeries: 4 registros
-INSERT INTO `surgeries` (`id`, `stage`, `status`, `patient_id`, `institution_id`, `doctor_id`, `client_id`, `seller_id`, `procedure_name`, `commission_pct`, `fee_amount`, `quote_notes`, `custom_data`, `auth_type`, `oc_number`, `authorized_at`, `authorized_by`, `scheduled_at`, `instrumentist_id`, `driver_id`, `box_id`, `logistics_notes`, `assigned_at`, `cx_confirmed_at`, `cx_confirmed_by`, `preparing_at`, `dispatched_at`, `delivered_at`, `delivered_by`, `performed_at`, `observations`, `consumption_at`, `box_final_status`, `invoice_number`, `invoice_date`, `invoice_amount`, `invoiced_at`, `fee_liquidated`, `collected`, `payment_date`, `payment_type`, `payment_amount`, `cheque_bank`, `cheque_number`, `cheque_date`, `cheque_holder`, `collection_notes`, `collected_at`, `suspended_at`, `suspension_reason`, `reprogram_count`, `created_by`, `created_at`, `updated_at`) VALUES
-(1, 'cotizacion', 'activa', 1, 1, 1, 1, 6, 'Osteosíntesis de radio distal', 5, 450000, NULL, '{"lateralidad":"Derecha","urgencia":0}', NULL, NULL, NULL, NULL, '2026-11-13 08:30:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(2, 'autorizacion', 'activa', 2, 2, 2, 2, 6, 'Reemplazo total de cadera', 5, 500000, NULL, '{"lateralidad":"Derecha","urgencia":0}', NULL, NULL, NULL, NULL, '2026-11-11 08:30:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(3, 'asignacion', 'activa', 3, 3, 3, 3, 7, 'Artrodesis lumbar L4-L5', 5, 550000, NULL, '{"lateralidad":"Derecha","urgencia":0}', 'oc', 'OC-29641', '2026-11-07 09:58:43', NULL, '2026-11-09 08:30:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, '2026-11-07 09:58:43', '2026-11-07 09:58:43'),
-(4, 'facturacion', 'activa', 4, 1, 1, 4, 7, 'Enclavado endomedular de fémur', 5, 600000, NULL, '{"lateralidad":"Derecha","urgencia":0}', 'oc', 'OC-31091', '2026-11-07 09:58:43', NULL, '2026-11-04 08:30:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, '2026-11-07 09:58:43', '2026-11-07 09:58:43');
-
--- quote_items: 8 registros
-INSERT INTO `quote_items` (`id`, `surgery_id`, `material_id`, `description`, `quantity`, `unit_price`, `sort_order`) VALUES
-(1, 1, 5, 'Placa tercio de caña 3.5 mm', 1, 142000, 0),
-(2, 1, 1, 'Tornillo cortical 3.5 mm', 6, 18500, 1),
-(3, 2, 8, 'Prótesis total de cadera cementada', 1, 2450000, 0),
-(4, 2, 11, 'Cemento óseo 40 g', 2, 98000, 1),
-(5, 3, 12, 'Tornillo pedicular 5.5 mm', 4, 165000, 0),
-(6, 3, 13, 'Barra de titanio 5.5 mm', 2, 120000, 1),
-(7, 4, 6, 'Clavo endomedular de fémur 11 mm', 1, 690000, 0),
-(8, 4, 3, 'Tornillo bloqueado 5.0 mm', 4, 31200, 1);
-
--- surgery_events: 4 registros
-INSERT INTO `surgery_events` (`id`, `surgery_id`, `user_id`, `event`, `detail`, `created_at`) VALUES
-(1, 1, NULL, 'Cotización creada (datos de ejemplo)', NULL, '2026-11-07 09:58:43'),
-(2, 2, NULL, 'Cotización creada (datos de ejemplo)', NULL, '2026-11-07 09:58:43'),
-(3, 3, NULL, 'Cotización creada (datos de ejemplo)', NULL, '2026-11-07 09:58:43'),
-(4, 4, NULL, 'Cotización creada (datos de ejemplo)', NULL, '2026-11-07 09:58:43');
-
--- box_events: 5 registros
-INSERT INTO `box_events` (`id`, `box_id`, `surgery_id`, `from_status`, `to_status`, `user_id`, `note`, `created_at`) VALUES
-(1, 1, NULL, NULL, 'disponible', NULL, 'Alta de caja', '2026-11-07 09:58:43'),
-(2, 2, NULL, NULL, 'disponible', NULL, 'Alta de caja', '2026-11-07 09:58:43'),
-(3, 3, NULL, NULL, 'disponible', NULL, 'Alta de caja', '2026-11-07 09:58:43'),
-(4, 4, NULL, NULL, 'disponible', NULL, 'Alta de caja', '2026-11-07 09:58:43'),
-(5, 5, NULL, NULL, 'disponible', NULL, 'Alta de caja', '2026-11-07 09:58:43');
-
--- stock_movements: 5 registros
-INSERT INTO `stock_movements` (`id`, `material_id`, `box_id`, `surgery_id`, `type`, `quantity`, `reason`, `user_id`, `created_at`) VALUES
-(1, 1, NULL, NULL, 'consig_envio', -20, 'Consignación PAMI · Remito R 0001-00000452', NULL, '2026-11-07 09:58:43'),
-(2, 5, NULL, NULL, 'consig_envio', -3, 'Consignación PAMI · Remito R 0001-00000452', NULL, '2026-11-07 09:58:43'),
-(3, 10, NULL, NULL, 'consig_envio', -4, 'Consignación PAMI · Remito R 0001-00000452', NULL, '2026-11-07 09:58:43'),
-(4, 1, NULL, NULL, 'consig_consumo', -6, 'Consignación PAMI · Paciente Gutiérrez, A. · parte quirúrgico 8841', NULL, '2026-11-07 09:58:43'),
-(5, 5, NULL, NULL, 'consig_consumo', -1, 'Consignación PAMI · Paciente Gutiérrez, A. · parte quirúrgico 8841', NULL, '2026-11-07 09:58:43');
-
--- consignment_stock: 3 registros
-INSERT INTO `consignment_stock` (`id`, `client_id`, `material_id`, `quantity`, `updated_at`) VALUES
-(1, 2, 1, 14, '2026-11-07 09:58:43'),
-(2, 2, 5, 2, '2026-11-07 09:58:43'),
-(3, 2, 10, 4, '2026-11-07 09:58:43');
-
--- consignment_movements: 5 registros
-INSERT INTO `consignment_movements` (`id`, `client_id`, `material_id`, `type`, `quantity`, `unit_price`, `reference`, `notes`, `invoice_number`, `billed_at`, `user_id`, `created_at`) VALUES
-(1, 2, 1, 'envio', 20, 18500, 'Remito R 0001-00000452', NULL, NULL, NULL, NULL, '2026-11-07 09:58:43'),
-(2, 2, 5, 'envio', 3, 142000, 'Remito R 0001-00000452', NULL, NULL, NULL, NULL, '2026-11-07 09:58:43'),
-(3, 2, 10, 'envio', 4, 210000, 'Remito R 0001-00000452', NULL, NULL, NULL, NULL, '2026-11-07 09:58:43'),
-(4, 2, 1, 'consumo', -6, 18500, 'Paciente Gutiérrez, A. · parte quirúrgico 8841', NULL, NULL, NULL, NULL, '2026-11-07 09:58:43'),
-(5, 2, 5, 'consumo', -1, 142000, 'Paciente Gutiérrez, A. · parte quirúrgico 8841', NULL, NULL, NULL, NULL, '2026-11-07 09:58:43');
-
--- audit_log: 2 registros
-INSERT INTO `audit_log` (`id`, `user_id`, `action`, `entity`, `entity_id`, `detail`, `ip`, `created_at`) VALUES
-(1, NULL, 'consignment.envio', 'clients', 2, 'Remito R 0001-00000452', 'cli', '2026-11-07 09:58:43'),
-(2, NULL, 'consignment.consumo', 'clients', 2, 'Paciente Gutiérrez, A. · parte quirúrgico 8841', 'cli', '2026-11-07 09:58:43');
+(1, 1, 'Administrador', 'admin@metallive.com.ar', NULL, '$2y$12$SLKXL9vThBiC0jsAdY9OY.w6x6iH0hmfYV8t3VABmUlvB6SNGD43C', 0, 1, 0, 1, NULL, '2026-11-12 15:30:15', '2026-11-12 15:30:15');
 
 SET FOREIGN_KEY_CHECKS = 1;

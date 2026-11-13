@@ -13,56 +13,58 @@ $return = $isNew ? '/admin/cirugias/nueva' : '/admin/cirugias/' . $s['id'] . '/c
     <h2><?= $isNew ? 'Nueva cotización' : 'Cotización ' . e(surgery_code($s['id'])) ?></h2>
     <p class="subtitle">Estadio 1 · Paciente, institución, médico, cliente, material, honorario y vendedor. Todos los campos son editables.</p>
   </div>
-  <div class="actions">
-    <a class="btn btn-ghost" href="<?= url($isNew ? '/admin/cirugias' : '/admin/cirugias/' . $s['id']) ?>">Cancelar</a>
-  </div>
 </div>
 
-<form method="post" action="<?= $action ?>" enctype="multipart/form-data">
+<form method="post" action="<?= $action ?>" enctype="multipart/form-data" class="form-compact">
   <?= csrf_field() ?>
 
   <section class="card">
     <div class="card-head"><h3><?= icon('user') ?> Datos de la cirugía</h3></div>
     <div class="card-body form-grid">
       <div class="field">
-        <label for="patient_id" class="req">Paciente</label>
-        <input class="select-search" type="search" placeholder="Buscar por apellido o DNI…" data-filter-select="#patient_id" aria-label="Buscar paciente">
-        <select id="patient_id" name="patient_id" required<?= invalid('patient_id') ?>>
+        <div class="field-head">
+          <label for="patient_id" class="req">Paciente</label>
+          <?php if (can('catalogs.manage')): ?><a class="field-link" href="<?= url('/admin/maestros/pacientes/nuevo', ['return' => $return]) ?>">+ Nuevo paciente</a><?php endif; ?>
+        </div>
+        <select id="patient_id" name="patient_id" required data-combobox data-placeholder="Buscar por apellido o DNI…"<?= invalid('patient_id') ?>>
           <option value="">Seleccionar…</option>
           <?php foreach ($patients as $p): ?>
             <option value="<?= (int) $p['id'] ?>"<?= selected($val('patient_id'), $p['id']) ?>><?= e(person_name($p)) ?><?= $p['document'] ? ' · DNI ' . e($p['document']) : '' ?></option>
           <?php endforeach; ?>
         </select>
         <?= field_error('patient_id') ?>
-        <?php if (can('catalogs.manage')): ?><p class="hint"><a href="<?= url('/admin/maestros/pacientes/nuevo', ['return' => $return]) ?>">+ Cargar paciente nuevo</a></p><?php endif; ?>
       </div>
       <div class="field">
-        <label for="institution_id" class="req">Institución</label>
+        <div class="field-head">
+          <label for="institution_id" class="req">Institución</label>
+          <?php if (can('catalogs.manage')): ?><a class="field-link" href="<?= url('/admin/maestros/instituciones/nuevo', ['return' => $return]) ?>">+ Nueva</a><?php endif; ?>
+        </div>
         <select id="institution_id" name="institution_id" required<?= invalid('institution_id') ?>>
           <option value="">Seleccionar…</option>
           <?php foreach ($institutions as $i): ?><option value="<?= (int) $i['id'] ?>"<?= selected($val('institution_id'), $i['id']) ?>><?= e($i['name']) ?></option><?php endforeach; ?>
         </select>
         <?= field_error('institution_id') ?>
-        <?php if (can('catalogs.manage')): ?><p class="hint"><a href="<?= url('/admin/maestros/instituciones/nuevo', ['return' => $return]) ?>">+ Nueva institución</a></p><?php endif; ?>
       </div>
       <div class="field">
-        <label for="doctor_id" class="req">Médico</label>
+        <div class="field-head">
+          <label for="doctor_id" class="req">Médico</label>
+          <?php if (can('catalogs.manage')): ?><a class="field-link" href="<?= url('/admin/maestros/medicos/nuevo', ['return' => $return]) ?>">+ Nuevo</a><?php endif; ?>
+        </div>
         <select id="doctor_id" name="doctor_id" required<?= invalid('doctor_id') ?>>
           <option value="">Seleccionar…</option>
           <?php foreach ($doctors as $d): ?><option value="<?= (int) $d['id'] ?>"<?= selected($val('doctor_id'), $d['id']) ?>><?= e(person_name($d)) ?></option><?php endforeach; ?>
         </select>
         <?= field_error('doctor_id') ?>
-        <?php if (can('catalogs.manage')): ?><p class="hint"><a href="<?= url('/admin/maestros/medicos/nuevo', ['return' => $return]) ?>">+ Nuevo médico</a></p><?php endif; ?>
       </div>
       <div class="field">
-        <label for="client_id" class="req">Cliente (obra social / prepaga / particular)</label>
+        <label for="client_id" class="req" title="Obra social, prepaga o particular">Cliente</label>
         <select id="client_id" name="client_id" required<?= invalid('client_id') ?>>
           <option value="">Seleccionar…</option>
           <?php foreach ($clients as $c): ?><option value="<?= (int) $c['id'] ?>"<?= selected($val('client_id'), $c['id']) ?>><?= e($c['name']) ?></option><?php endforeach; ?>
         </select>
         <?= field_error('client_id') ?>
       </div>
-      <div class="field span-2">
+      <div class="field">
         <label for="procedure_name">Procedimiento</label>
         <input id="procedure_name" name="procedure_name" value="<?= e($val('procedure_name')) ?>" maxlength="255" placeholder="Ej.: Osteosíntesis de radio distal">
       </div>
@@ -96,7 +98,7 @@ $return = $isNew ? '/admin/cirugias/nueva' : '/admin/cirugias/' . $s['id'] . '/c
   <section class="card">
     <div class="card-head">
       <h3><?= icon('layers') ?> Material cotizado</h3>
-      <div class="actions"><button class="btn btn-sm" type="button" data-add-row="items"><?= icon('plus') ?> Agregar ítem</button></div>
+      <div class="actions"><button class="btn btn-sm btn-outline" type="button" data-add-row="items"><?= icon('plus') ?> Agregar ítem</button></div>
     </div>
     <?php foreach ((array) App\Core\Session::get('_errors', []) as $k => $msg): if (str_starts_with((string) $k, 'items.')): ?>
       <div class="alert alert-danger"><?= e($msg) ?></div>
@@ -153,10 +155,12 @@ $return = $isNew ? '/admin/cirugias/nueva' : '/admin/cirugias/' . $s['id'] . '/c
     </div>
   </section>
 
-  <div class="form-actions">
-    <button class="btn btn-primary btn-lg" type="submit">Guardar cotización</button>
+  <div class="form-actions form-actions-sticky">
+    <a class="btn btn-ghost" href="<?= url($isNew ? '/admin/cirugias' : '/admin/cirugias/' . $s['id']) ?>">Cancelar</a>
+    <span class="spacer"></span>
+    <button class="btn btn-primary" type="submit"><?= icon('check') ?> Guardar cotización</button>
     <?php if ($isNew): ?>
-      <button class="btn btn-lg" type="submit" name="send" value="1">Guardar y enviar a autorización</button>
+      <button class="btn btn-dark" type="submit" name="send" value="1">Guardar y enviar a autorización</button>
     <?php endif; ?>
   </div>
 </form>

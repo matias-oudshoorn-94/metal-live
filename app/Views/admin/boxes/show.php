@@ -49,7 +49,7 @@
         <?= csrf_field() ?>
         <div class="field">
           <label for="bi-mat">Material</label>
-          <select id="bi-mat" name="material_id" required>
+          <select id="bi-mat" name="material_id" required data-combobox data-combobox-code data-placeholder="Buscar material por código o nombre">
             <option value="">Seleccionar…</option>
             <?php foreach ($materials as $m): ?><option value="<?= (int) $m['id'] ?>"><?= e($m['code'] . ' · ' . $m['name']) ?></option><?php endforeach; ?>
           </select>
