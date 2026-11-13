@@ -26,15 +26,17 @@
       <div>Caja <span class="mono"><?= e($s['box_code'] ?? '—') ?></span> · <?= e($s['box_name'] ?? '') ?></div>
       <?php if (can('logistics.manage')): ?><div class="muted">Chofer: <?= e($s['driver_name'] ?? '—') ?></div><?php endif; ?>
       <?php if ($s['logistics_notes']): ?><div class="alert alert-info"><?= nl2br(e($s['logistics_notes'])) ?></div><?php endif; ?>
-      <?php if ($s['dispatched_at'] && !$s['delivered_at'] && can('delivery.confirm', 'logistics.manage')): ?>
+    </div>
+    <?php if ($s['dispatched_at'] && !$s['delivered_at'] && can('delivery.confirm', 'logistics.manage')): ?>
+      <div class="card-foot">
         <form method="post" action="<?= url('/admin/cirugias/' . $s['id'] . '/entrega') ?>" data-confirm="¿Confirmás que el material fue entregado?">
           <?= csrf_field() ?>
-          <button class="btn btn-success btn-lg btn-block" type="submit"><?= icon('check') ?> Confirmar material entregado</button>
+          <button class="btn btn-success btn-block" type="submit"><?= icon('check') ?> Confirmar material entregado</button>
         </form>
-      <?php elseif ($s['delivered_at']): ?>
-        <p class="muted">Entregado el <?= e(fdatetime($s['delivered_at'])) ?></p>
-      <?php endif; ?>
-    </div>
+      </div>
+    <?php elseif ($s['delivered_at']): ?>
+      <div class="card-foot"><p class="muted"><?= icon('check') ?> Entregado el <?= e(fdatetime($s['delivered_at'])) ?></p></div>
+    <?php endif; ?>
   </section>
 <?php endforeach; ?>
 </div>

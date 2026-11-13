@@ -307,3 +307,54 @@ $('select[data-seller]')?.addEventListener('change', (e) => {
   const pct = e.target.selectedOptions[0]?.dataset.commission;
   if (commission && pct !== undefined && !commission.dataset.touched) commission.value = pct;
 });
+
+// ---------- Selects que aplican el filtro al cambiar: <select data-autosubmit>
+document.addEventListener('change', (e) => {
+  if (e.target.matches('select[data-autosubmit]')) e.target.form?.requestSubmit();
+});
+
+// ---------- Matriz de permisos: resalta la columna del rol bajo el mouse
+$$('table[data-matrix]').forEach((table) => {
+  let current = -1;
+  const paint = (col) => {
+    if (col === current) return;
+    $$('.col-hover', table).forEach((c) => c.classList.remove('col-hover'));
+    current = col;
+    if (col < 1) return;
+    $$('tr', table).forEach((tr) => {
+      if (tr.cells.length > col) tr.cells[col].classList.add('col-hover');
+    });
+  };
+  table.addEventListener('mouseover', (e) => {
+    const cell = e.target.closest('td, th');
+    paint(cell && !cell.hasAttribute('colspan') ? cell.cellIndex : -1);
+  });
+  table.addEventListener('mouseleave', () => paint(-1));
+});
+
+// ---------- Edición de rol: contadores por grupo, total y "marcar todos"
+$$('form[data-perm-form]').forEach((form) => {
+  const total = $('[data-perm-total]', form);
+  const refresh = () => {
+    $$('[data-perm-group]', form).forEach((group) => {
+      const boxes = $$('input[type=checkbox]', group);
+      const on = boxes.filter((b) => b.checked).length;
+      const count = $('[data-perm-count]', group);
+      count.textContent = `${on} de ${boxes.length}`;
+      count.classList.toggle('is-some', on > 0 && on < boxes.length);
+      count.classList.toggle('is-all', on === boxes.length);
+      $('[data-perm-toggle]', group).textContent = on === boxes.length ? 'Quitar todos' : 'Marcar todos';
+    });
+    if (total) total.textContent = $$('input[name="permissions[]"]:checked', form).length;
+  };
+  form.addEventListener('change', refresh);
+  form.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-perm-toggle]');
+    if (!btn) return;
+    const boxes = $$('input[type=checkbox]', btn.closest('[data-perm-group]'));
+    const all = boxes.every((b) => b.checked);
+    boxes.forEach((b) => { b.checked = !all; });
+    refresh();
+  });
+  refresh();
+});

@@ -2,6 +2,15 @@
    Metal Live · base compartida (tokens, reset, componentes)
    ========================================================================== */
 
+/* Tipografía compartida (sitio y panel): Plus Jakarta Sans (variable, alojada en el proyecto; licencia OFL). */
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("../fonts/plus-jakarta-sans.woff2") format("woff2");
+}
+
 :root {
   --brand: #0794fb;
   --brand-600: #0479d1;
@@ -37,7 +46,7 @@
   --shadow: 0 1px 3px rgb(15 30 51 / 8%), 0 8px 24px rgb(15 30 51 / 6%);
   --shadow-lg: 0 20px 50px rgb(11 27 54 / 18%);
 
-  --font: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   color-scheme: light;
@@ -52,6 +61,7 @@ body {
   font-family: var(--font);
   font-size: 15px;
   line-height: 1.55;
+  word-spacing: .06em; /* Plus Jakarta Sans junta mucho las palabras */
   color: var(--ink);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;

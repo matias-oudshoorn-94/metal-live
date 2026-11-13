@@ -5,15 +5,29 @@ declare(strict_types=1);
 namespace App\Controllers\Admin;
 
 use App\Core\Controller;
-use App\Core\Database;
+use App\Services\AuditFeed;
 
 final class AuditController extends Controller
 {
+    private const PER_PAGE = 50;
+
     public function index(): void
     {
-        $rows = Database::fetchAll(
-            'SELECT a.*, u.name AS user_name FROM audit_log a LEFT JOIN users u ON u.id = a.user_id ORDER BY a.id DESC LIMIT 300'
-        );
-        $this->render('admin/audit/index', ['title' => 'Auditoría', 'rows' => $rows]);
+        $filters = [
+            'user' => (string) $this->request->query('usuario', ''),
+            'type' => (string) $this->request->query('tipo', ''),
+            'from' => (string) $this->request->query('desde', ''),
+            'to' => (string) $this->request->query('hasta', ''),
+        ];
+        [$rows, $total] = AuditFeed::fetch($filters, $this->page(), self::PER_PAGE);
+
+        $this->render('admin/audit/index', [
+            'title' => 'Auditoría',
+            'items' => AuditFeed::describe($rows),
+            'filters' => $filters,
+            'users' => AuditFeed::users(),
+            'total' => $total,
+            'perPage' => self::PER_PAGE,
+        ]);
     }
 }

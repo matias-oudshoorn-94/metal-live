@@ -46,6 +46,7 @@ $nav = [
   <meta name="robots" content="noindex, nofollow">
   <title><?= e($title ?? 'Panel') ?> · Metal Live</title>
   <link rel="icon" href="<?= asset('img/favicon.png') ?>">
+  <link rel="preload" href="<?= url('assets/fonts/plus-jakarta-sans.woff2') ?>" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="<?= asset('css/base.css') ?>">
   <link rel="stylesheet" href="<?= asset('css/admin.css') ?>">
   <script src="<?= asset('js/admin.js') ?>" type="module" nonce="<?= e(csp_nonce()) ?>"></script>
